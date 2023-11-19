@@ -12,6 +12,7 @@ class Meeting(models.Model):
     attendee = models.ForeignKey(User, related_name="meetings_attendee_related", on_delete=models.CASCADE)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    num_reschedules = models.IntegerField(default=0)
     def __str__(self):
         return self.field1
 
@@ -26,4 +27,3 @@ class ActionItem(models.Model):
 class MeetingModelManager(models.Manager):
     def get_objects_based_on_query(self, your_condition):
         return self.filter(your_column=your_condition)
-
