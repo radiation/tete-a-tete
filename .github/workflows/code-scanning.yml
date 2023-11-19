@@ -1,0 +1,27 @@
+name: Code Scanning
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  code-scanning:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        language: [python]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Code Scanning
+        uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
+
