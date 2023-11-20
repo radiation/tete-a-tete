@@ -3,8 +3,8 @@ from .views import *
 
 urlpatterns = [
     path('user/', UserListCreateView.as_view(), name='user-list-create'),
-    path('user/id/<int:id_value>', UserListByIDView.as_view(), name='user-list-create'),
     path('user/create/', UserListCreateView.as_view(), name='user-create'),
+    path('user/id/<int:id_value>', UserListByIDView.as_view(), name='user-list-create'),
 
     path('meeting/', MeetingListCreateView.as_view(), name='meeting-list-create'),
     path('meeting/create/', MeetingListCreateView.as_view(), name='meeting-create'),
@@ -14,4 +14,12 @@ urlpatterns = [
     path('actionitem/create/', ActionItemListCreateView.as_view(), name='actionitem-create'),
     path('actionitem/user/<int:user_id_value>', ActionItemListByUserView.as_view(), name='actionitem-list-create'),
     path('actionitem/meeting/<int:meeting_id_value>', ActionItemListByUserView.as_view(), name='actionitem-list-create'),
+
+    path('question/', QuestionListCreateView.as_view(), name='question-list-create'),
+    path('question/create/', QuestionListCreateView.as_view(), name='question-create'),
+    path('question/id/<int:id_value>', QuestionListByIDView.as_view(), name='question-list-create'),
+
+    path('questionanswer/', QuestionAnswerListCreateView.as_view(), name='questionanswer-list-create'),
+    path('questionanswer/create/', QuestionAnswerListCreateView.as_view(), name='questionanswer-create'),
+    path('questionanswer/id/<int:id_value>', QuestionAnswerListByIDView.as_view(), name='questionanswer-list-create'),    
 ]

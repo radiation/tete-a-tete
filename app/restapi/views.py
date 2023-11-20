@@ -51,3 +51,23 @@ class ActionItemListByMeetingView(generics.ListCreateAPIView):
         meeting_id_value=self.kwargs.get('meeting_id_value')
         return ActionItem.objects.filter(Q(assignee__id=meeting_id_value))
     serializer_class = ActionItemSerializer
+
+class QuestionListCreateView(generics.ListCreateAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+class QuestionListByIDView(generics.ListCreateAPIView):
+    def get_queryset(self):
+        id_value = self.kwargs.get('id_value')
+        return Question.objects.filter(id=id_value)
+    serializer_class = QuestionSerializer
+
+class QuestionAnswerListCreateView(generics.ListCreateAPIView):
+    queryset = QuestionAnswer.objects.all()
+    serializer_class = QuestionAnswerSerializer
+
+class QuestionAnswerListByIDView(generics.ListCreateAPIView):
+    def get_queryset(self):
+        id_value = self.kwargs.get('id_value')
+        return QuestionAnswer.objects.filter(id=id_value)
+    serializer_class = QuestionAnswerSerializer

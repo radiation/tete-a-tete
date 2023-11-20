@@ -19,3 +19,15 @@ class ActionItemSerializer(serializers.ModelSerializer):
         model = ActionItem
         fields = '__all__'
 
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = '__all__'
+
+class QuestionAnswerSerializer(serializers.ModelSerializer):
+    question = QuestionSerializer()
+    asker = UserSerializer()
+    answerer = UserSerializer()
+    class Meta:
+        model = QuestionAnswer
+        fields = '__all__'

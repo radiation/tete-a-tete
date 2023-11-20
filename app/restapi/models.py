@@ -4,8 +4,6 @@ class User(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email_address = models.CharField(max_length=50)
-    def __str__(self):
-        return self.field1
 
 class Meeting(models.Model):    
     scheduler = models.ForeignKey(User, related_name="meetings_scheduler_related", on_delete=models.CASCADE)
@@ -13,17 +11,19 @@ class Meeting(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     num_reschedules = models.IntegerField(default=0)
-    def __str__(self):
-        return self.field1
 
 class ActionItem(models.Model):
-    meeting = models.ForeignKey(Meeting, related_name="%(app_label)s_%(class)s_related", on_delete=models.CASCADE)
-    assignee = models.ForeignKey(User, related_name="%(app_label)s_%(class)s_related", on_delete=models.CASCADE)
+    meeting = models.ForeignKey(Meeting, related_name="actionitems_meeting_related", on_delete=models.CASCADE)
+    assignee = models.ForeignKey(User, related_name="actionitems_assignee_related", on_delete=models.CASCADE)
     completed = models.BooleanField()
     todo_item = models.TextField()
-    def __str__(self):
-        return self.field1
 
-class MeetingModelManager(models.Manager):
-    def get_objects_based_on_query(self, your_condition):
-        return self.filter(your_column=your_condition)
+class Question(models.Model):
+    question_text = models.TextField()
+
+class QuestionAnswer(models.Model):
+    question = models.ForeignKey(Question, related_name="questionanswers_question_related", on_delete=models.CASCADE)
+    asker = models.ForeignKey(User, related_name="questions_asker_related", on_delete=models.CASCADE)
+    answerer = models.ForeignKey(User, related_name="questions_answerer_related", on_delete=models.CASCADE)
+    answer_text = models.TextField()
+    
