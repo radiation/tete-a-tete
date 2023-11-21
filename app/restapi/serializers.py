@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from drf_writable_nested import WritableNestedModelSerializer
 from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
@@ -6,14 +7,14 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
-class MeetingSerializer(serializers.ModelSerializer):
+class MeetingSerializer(WritableNestedModelSerializer):
     scheduler = UserSerializer()
     attendee = UserSerializer()
     class Meta:
         model = Meeting
         fields = '__all__'
 
-class ActionItemSerializer(serializers.ModelSerializer):
+class ActionItemSerializer(WritableNestedModelSerializer):
     meeting = MeetingSerializer()
     class Meta:
         model = ActionItem
@@ -24,7 +25,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = '__all__'
 
-class QuestionAnswerSerializer(serializers.ModelSerializer):
+class QuestionAnswerSerializer(WritableNestedModelSerializer):
     question = QuestionSerializer()
     asker = UserSerializer()
     answerer = UserSerializer()
