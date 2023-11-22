@@ -18,8 +18,13 @@ const MeetingList = () => {
         <div>
             {meetings.map(meeting => (
                 <div key={meeting.id}>
-                    <h2>{meeting.title}</h2>
-                    <p>{meeting.start_date}</p>
+                    <p>
+                        <li>{meeting.title}</li>
+                        <li>{meeting.scheduler.id}</li>
+                        <li>{meeting.attendee.id}</li>
+                        <li>{meeting.start_date}</li>
+                        <li>{meeting.end_date}</li>
+                    </p>
                 </div>
             ))}
         </div>
