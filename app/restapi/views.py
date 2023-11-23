@@ -14,21 +14,25 @@ class UserListByIDView(generics.ListCreateAPIView):
         return User.objects.filter(id=id_value)
     serializer_class = UserSerializer
 
-class MeetingListCreateView(generics.ListCreateAPIView):
+class MeetingCreateView(generics.CreateAPIView):
     queryset = Meeting.objects.all()
-    serializer_class = MeetingSerializer
+    serializer_class = MeetingFlatSerializer
 
-class MeetingListByIDView(generics.ListCreateAPIView):
+class MeetingListView(generics.ListAPIView):
+    queryset = Meeting.objects.all()
+    serializer_class = MeetingNestedSerializer
+
+class MeetingListByIDView(generics.ListAPIView):
     def get_queryset(self):
         id_value = self.kwargs.get('id_value')
         return Meeting.objects.filter(id=id_value)
-    serializer_class = MeetingSerializer
+    serializer_class = MeetingNestedSerializer
 
 class MeetingListByUserView(generics.ListCreateAPIView):
     def get_queryset(self):
         user_id_value=self.kwargs.get('user_id_value')
         return Meeting.objects.filter(Q(scheduler__id=user_id_value) | Q(attendee__id=user_id_value)).order_by('start_date')
-    serializer_class = MeetingSerializer
+    serializer_class = MeetingNestedSerializer
 
 class ActionItemListCreateView(generics.ListCreateAPIView):
     queryset = ActionItem.objects.all()

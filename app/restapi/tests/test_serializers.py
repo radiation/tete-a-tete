@@ -37,7 +37,7 @@ class MeetingSerializerTestCase(TestCase):
             'start_date': "2022-01-01",
             'end_date': "2022-01-02"
         }
-        serializer = MeetingSerializer(data=meeting_data)
+        serializer = MeetingNestedSerializer(data=meeting_data)
         print(serializer.is_valid())
         print(serializer.errors)
         self.assertTrue(serializer.is_valid())

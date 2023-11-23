@@ -7,7 +7,12 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
-class MeetingSerializer(WritableNestedModelSerializer):
+class MeetingFlatSerializer(WritableNestedModelSerializer):
+    class Meta:
+        model = Meeting
+        fields = '__all__'
+
+class MeetingNestedSerializer(WritableNestedModelSerializer):
     scheduler = UserSerializer()
     attendee = UserSerializer()
     class Meta:

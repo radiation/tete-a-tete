@@ -6,9 +6,9 @@ urlpatterns = [
     path('user/create/', UserListCreateView.as_view(), name='user-create'),
     path('user/id/<int:id_value>', UserListByIDView.as_view(), name='user-list-create'),
 
-    path('meeting/', MeetingListCreateView.as_view(), name='meeting-list-create'),
-    path('meeting/create/', MeetingListCreateView.as_view(), name='meeting-create'),
-    path('meeting/user/<int:user_id_value>', MeetingListByUserView.as_view(), name='meeting-list-create'),
+    path('meeting/', MeetingListView.as_view(), name='meeting-list'),
+    path('meeting/create/', MeetingCreateView.as_view(), name='meeting-create'),
+    path('meeting/user/<int:user_id_value>', MeetingListByUserView.as_view(), name='meeting-list-by-user'),
 
     path('actionitem/', UserListCreateView.as_view(), name='actionitem-list-create'),
     path('actionitem/create/', ActionItemListCreateView.as_view(), name='actionitem-create'),
