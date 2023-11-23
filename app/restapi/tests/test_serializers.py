@@ -11,7 +11,7 @@ class UserSerializerTestCase(TestCase):
             'email_address': 'john_doe@example.com',
             'user_name': 'john_doe'
         }
-        serializer = UserSerializer(data=user_data)
+        serializer = UserFlatSerializer(data=user_data)
         self.assertTrue(serializer.is_valid())
         user = serializer.save()
         self.assertEqual(user.user_name, 'john_doe')
