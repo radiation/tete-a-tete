@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'restapi',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -38,6 +39,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -119,3 +122,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_TRUSTED_ORIGINS = ['http://localhost:1337']
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Add the origin of your React app
+]

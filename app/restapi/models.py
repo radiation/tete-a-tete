@@ -7,7 +7,7 @@ class User(models.Model):
     user_name = models.CharField(default="", max_length=50, unique=True)
     def save(self, *args, **kwargs):
         if self.user_name == "":
-            self.user_name = self.first_name + "_" + self.last_name
+            self.user_name = self.first_name.lower() + "_" + self.last_name.lower()
         super(User, self).save(*args, **kwargs)
     def __str__(self):
         return self.first_name + " " + self.last_name
