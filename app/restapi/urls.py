@@ -24,4 +24,9 @@ urlpatterns = [
     path('questionanswer/create/', QuestionAnswerCreateView.as_view(), name='questionanswer-create'),
     path('questionanswer/id/<int:id_value>', QuestionAnswerListByIDView.as_view(), name='questionanswer-by-id'),    
 
+    path('agendaitem/', AgendaItemListView.as_view(), name='agendaitem-list'),
+    path('agendaitem/create/', AgendaItemCreateView.as_view(), name='agendaitem-create'),
+    path('agendaitem/meeting/<int:meeting_id_value>', AgendaItemListByMeetingView.as_view(), name='agendaitem-list-by-meeting'),
+    path('agendaitem/id/<int:id_value>', AgendaItemListByIDView.as_view(), name='agendaitem-list-by-id'),
+    
 ]

@@ -47,3 +47,14 @@ class QuestionAnswerNestedSerializer(WritableNestedModelSerializer):
     class Meta:
         model = QuestionAnswer
         fields = '__all__'
+
+class AgendaItemFlatSerializer(WritableNestedModelSerializer):
+    class Meta:
+        model = AgendaItem
+        fields = '__all__'
+
+class AgendaItemNestedSerializer(WritableNestedModelSerializer):
+    meeting = MeetingNestedSerializer()
+    class Meta:
+        model = AgendaItem
+        fields = '__all__'

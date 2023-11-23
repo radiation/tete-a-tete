@@ -39,3 +39,7 @@ class QuestionAnswer(models.Model):
     answerer = models.ForeignKey(User, related_name="questions_answerer_related", on_delete=models.CASCADE)
     answer_text = models.TextField()
     
+class AgendaItem(models.Model):
+    meeting = models.ForeignKey(Meeting, related_name="agendaitems_meeting_related", on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField(default="")
