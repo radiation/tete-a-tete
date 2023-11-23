@@ -87,3 +87,24 @@ class QuestionAnswerListByIDView(generics.ListAPIView):
         id_value = self.kwargs.get('id_value')
         return QuestionAnswer.objects.filter(id=id_value)
     serializer_class = QuestionAnswerNestedSerializer
+
+class AgendaItemListView(generics.ListAPIView):
+    queryset = AgendaItem.objects.all()
+    serializer_class = AgendaItemNestedSerializer
+
+class AgendaItemCreateView(generics.CreateAPIView):
+    queryset = AgendaItem.objects.all()
+    serializer_class = AgendaItemFlatSerializer
+
+class AgendaItemListByIDView(generics.ListAPIView):
+    def get_queryset(self):
+        id_value = self.kwargs.get('id_value')
+        return AgendaItem.objects.filter(id=id_value)
+    serializer_class = AgendaItemNestedSerializer
+
+class AgendaItemListByMeetingView(generics.ListAPIView):
+    def get_queryset(self):
+        meeting_id_value=self.kwargs.get('meeting_id_value')
+        return AgendaItem.objects.filter(Q(meeting__id=meeting_id_value))
+    serializer_class = AgendaItemNestedSerializer
+    
