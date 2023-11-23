@@ -19,7 +19,7 @@ const MeetingForm = () => {
             end_date: endDate
         };
 
-        axios.post('http://localhost:8000/api/meeting', meeting)
+        axios.post('http://localhost:8000/api/meeting/create/', meeting)
             .then(res => console.log(res.data));
     };
 
