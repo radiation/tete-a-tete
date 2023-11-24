@@ -1,5 +1,4 @@
 from django.test import TestCase
-from rest_framework import serializers
 from restapi.models import *
 from restapi.serializers import *
 

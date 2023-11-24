@@ -2,13 +2,11 @@ from django.test import TestCase
 from restapi.models import *
 
 user_john=User.objects.create(
-    user_name="john_doe",
     first_name="John", 
     last_name="Doe", 
     email_address="john.doe@example.com"
 )
 user_jane=User.objects.create(
-    user_name="jane_doe",
     first_name="Jane", 
     last_name="Doe", 
     email_address="jane.doe@example.com"
@@ -17,6 +15,7 @@ meeting_jj=Meeting.objects.create(scheduler=user_john, attendee=user_jane, start
 action_item = ActionItem.objects.create(meeting=meeting_jj, assignee=user_john, completed=False, todo_item="Do something")
 question = Question.objects.create(question_text="What is your favorite color?")
 question_answer = QuestionAnswer.objects.create(question=question, asker=user_john, answerer=user_jane, answer_text="Blue")
+agenda_item = AgendaItem.objects.create(meeting=meeting_jj, title="Agenda Item Title", description="Agenda Item Description")
 
 class UserModelTest(TestCase):
     def test_user_creation(self):
@@ -50,3 +49,9 @@ class QuestionAnswerModelTest(TestCase):
         self.assertEqual(question_answer.asker, user_john)
         self.assertEqual(question_answer.answerer, user_jane)
         self.assertEqual(question_answer.answer_text, "Blue")
+
+class AgendaItemModelTest(TestCase):
+    def test_agenda_item_creation(self):
+        self.assertEqual(agenda_item.meeting, meeting_jj)
+        self.assertEqual(agenda_item.title, "Agenda Item Title")
+        self.assertEqual(agenda_item.description, "Agenda Item Description")
