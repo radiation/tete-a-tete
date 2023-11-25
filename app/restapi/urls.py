@@ -9,6 +9,7 @@ urlpatterns = [
 
     path('meeting/', MeetingListView.as_view(), name='meeting-list'),
     path('meeting/create/', MeetingCreateView.as_view(), name='meeting-create'),
+    path('meeting/id/<int:id_value>', MeetingListByIDView.as_view(), name='meeting-list-by-id'),
     path('meeting/user/<int:user_id_value>', MeetingListByUserView.as_view(), name='meeting-list-by-user'),
 
     path('actionitem/', ActionItemListView.as_view(), name='actionitem-list'),
