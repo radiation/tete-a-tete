@@ -4,7 +4,7 @@ from .models import *
 
 class UserFlatSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = '__all__'
 
 class MeetingFlatSerializer(WritableNestedModelSerializer):

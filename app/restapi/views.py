@@ -5,13 +5,13 @@ from .models import *
 from .serializers import *
 
 class UserListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = UserFlatSerializer
 
 class UserListByIDView(generics.ListCreateAPIView):
     def get_queryset(self):
         id_value = self.kwargs.get('id_value')
-        return User.objects.filter(id=id_value)
+        return CustomUser.objects.filter(id=id_value)
     serializer_class = UserFlatSerializer
 
 class MeetingCreateView(generics.CreateAPIView):
