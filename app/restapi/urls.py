@@ -8,11 +8,11 @@ urlpatterns = [
     path("register/", RegisterView.as_view(), name="rest_register"),
     path("login/", LoginView.as_view(), name="rest_login"),
     path("logout/", LogoutView.as_view(), name="rest_logout"),
-    #path("user/", UserDetailsView.as_view(), name="rest_user_details"),
+    path("user/", UserDetailsView.as_view(), name="rest_user_details"),
 
-    path('user/', UserListCreateView.as_view(), name='user-list-create'),
-    path('user/create/', UserListCreateView.as_view(), name='user-create'),
-    path('user/id/<int:id_value>', UserListByIDView.as_view(), name='user-by-id'),
+    #path('user/', UserListCreateView.as_view(), name='user-list-create'),
+    #path('user/create/', UserListCreateView.as_view(), name='user-create'),
+    #path('user/id/<int:id_value>', UserListByIDView.as_view(), name='user-by-id'),
 
     path('meeting/', MeetingListView.as_view(), name='meeting-list'),
     path('meeting/create/', MeetingCreateView.as_view(), name='meeting-create'),
