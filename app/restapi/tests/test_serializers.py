@@ -10,7 +10,7 @@ class UserSerializerTestCase(TestCase):
             'email_address': 'john_doe@example.com',
             'user_name': 'john_doe'
         }
-        serializer = UserFlatSerializer(data=user_data)
+        serializer = UserSerializer(data=user_data)
         self.assertTrue(serializer.is_valid())
         user = serializer.save()
         self.assertEqual(user.user_name, 'john_doe')
@@ -36,7 +36,7 @@ class MeetingSerializerTestCase(TestCase):
             'start_date': "2022-01-01",
             'end_date': "2022-01-02"
         }
-        serializer = MeetingNestedSerializer(data=meeting_data)
+        serializer = MeetingSerializer(data=meeting_data)
         print(serializer.is_valid())
         print(serializer.errors)
         self.assertTrue(serializer.is_valid())

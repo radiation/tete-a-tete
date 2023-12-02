@@ -1,12 +1,12 @@
 from django.test import TestCase
 from restapi.models import *
 
-user_john=User.objects.create(
+user_john=CustomUser.objects.create(
     first_name="John", 
     last_name="Doe", 
     email_address="john.doe@example.com"
 )
-user_jane=User.objects.create(
+user_jane=CustomUser.objects.create(
     first_name="Jane", 
     last_name="Doe", 
     email_address="jane.doe@example.com"

@@ -1,40 +1,39 @@
 from dj_rest_auth.registration.views import RegisterView
-from dj_rest_auth.views import LoginView, LogoutView, UserDetailsView
 from django.urls import path
+from rest_framework.routers import DefaultRouter
+from dj_rest_auth.registration.views import (
+    ResendEmailVerificationView,
+    VerifyEmailView,
+)
+from dj_rest_auth.views import (
+    LoginView, 
+    LogoutView, 
+    UserDetailsView,
+    PasswordResetConfirmView,
+    PasswordResetView,
+)
 from .views import *
 
-urlpatterns = [
+router = DefaultRouter()
+router.register(r'users', UserViewSet)
+router.register(r'meetings', MeetingViewSet)
+router.register(r'actionitems', ActionItemViewSet)
+router.register(r'questions', QuestionViewSet)
+router.register(r'questionanswers', QuestionAnswerViewSet)
+router.register(r'agendaitems', AgendaItemViewSet)
 
+urlpatterns = [
     path("register/", RegisterView.as_view(), name="rest_register"),
     path("login/", LoginView.as_view(), name="rest_login"),
     path("logout/", LogoutView.as_view(), name="rest_logout"),
     path("user/", UserDetailsView.as_view(), name="rest_user_details"),
-
-    #path('user/', UserListCreateView.as_view(), name='user-list-create'),
-    #path('user/create/', UserListCreateView.as_view(), name='user-create'),
-    #path('user/id/<int:id_value>', UserListByIDView.as_view(), name='user-by-id'),
-
-    path('meeting/', MeetingListView.as_view(), name='meeting-list'),
-    path('meeting/create/', MeetingCreateView.as_view(), name='meeting-create'),
-    path('meeting/id/<int:id_value>', MeetingListByIDView.as_view(), name='meeting-list-by-id'),
-    path('meeting/user/<int:user_id_value>', MeetingListByUserView.as_view(), name='meeting-list-by-user'),
-
-    path('actionitem/', ActionItemListView.as_view(), name='actionitem-list'),
-    path('actionitem/create/', ActionItemCreateView.as_view(), name='actionitem-create'),
-    path('actionitem/user/<int:user_id_value>', ActionItemListByUserView.as_view(), name='actionitem-list-by-user'),
-    path('actionitem/meeting/<int:meeting_id_value>', ActionItemListByMeetingView.as_view(), name='actionitem-list-create'),
-
-    path('question/', QuestionListView.as_view(), name='question-list'),
-    path('question/create/', QuestionCreateView.as_view(), name='question-create'),
-    path('question/id/<int:id_value>', QuestionListByIDView.as_view(), name='question-list-by-id'),
-
-    path('questionanswer/', QuestionAnswerListView.as_view(), name='questionanswer-list'),
-    path('questionanswer/create/', QuestionAnswerCreateView.as_view(), name='questionanswer-create'),
-    path('questionanswer/id/<int:id_value>', QuestionAnswerListByIDView.as_view(), name='questionanswer-by-id'),    
-
-    path('agendaitem/', AgendaItemListView.as_view(), name='agendaitem-list'),
-    path('agendaitem/create/', AgendaItemCreateView.as_view(), name='agendaitem-create'),
-    path('agendaitem/meeting/<int:meeting_id_value>', AgendaItemListByMeetingView.as_view(), name='agendaitem-list-by-meeting'),
-    path('agendaitem/id/<int:id_value>', AgendaItemListByIDView.as_view(), name='agendaitem-list-by-id'),
-    
+    path("register/verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
+    path("register/resend-email/", ResendEmailVerificationView.as_view(), name="rest_resend_email"),
+    path("account-confirm-email/<str:key>/", email_confirm_redirect, name="account_confirm_email"),
+    path("account-confirm-email/", VerifyEmailView.as_view(), name="account_email_verification_sent"),
+    path("password/reset/", PasswordResetView.as_view(), name="rest_password_reset"),
+    path("password/reset/confirm/<str:uidb64>/<str:token>/", password_reset_confirm_redirect, name="password_reset_confirm",),
+    path("password/reset/confirm/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
 ]
+
+urlpatterns += router.urls

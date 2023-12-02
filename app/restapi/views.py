@@ -1,110 +1,89 @@
-from django.shortcuts import render
 from django.db.models import Q
-from rest_framework import generics
+from django.http import HttpResponseRedirect
+from dj_rest_auth.registration.views import RegisterView
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from .models import *
 from .serializers import *
 
-class UserListCreateView(generics.ListCreateAPIView):
+def email_confirm_redirect(request, key):
+    return HttpResponseRedirect(f"{settings.EMAIL_CONFIRM_REDIRECT_BASE_URL}{key}/")
+
+
+def password_reset_confirm_redirect(request, uidb64, token):
+    return HttpResponseRedirect(f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/")
+
+class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
-    serializer_class = UserFlatSerializer
+    serializer_class = UserSerializer
 
-class UserListByIDView(generics.ListCreateAPIView):
-    def get_queryset(self):
-        id_value = self.kwargs.get('id_value')
-        return CustomUser.objects.filter(id=id_value)
-    serializer_class = UserFlatSerializer
-
-class MeetingCreateView(generics.CreateAPIView):
+class MeetingViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
-    serializer_class = MeetingFlatSerializer
 
-class MeetingListView(generics.ListAPIView):
-    queryset = Meeting.objects.all()
-    serializer_class = MeetingNestedSerializer
+    def get_serializer_class(self):
+        if self.action in ('create','update'):
+            return MeetingFlatSerializer
+        return MeetingNestedSerializer
 
-class MeetingListByIDView(generics.ListAPIView):
-    def get_queryset(self):
-        id_value = self.kwargs.get('id_value')
-        return Meeting.objects.filter(id=id_value)
-    serializer_class = MeetingNestedSerializer
+    def perform_create(self, serializer):
+        scheduler = CustomUser.objects.get(pk=self.request.data.get('scheduler'))
+        attendee = CustomUser.objects.get(pk=self.request.data.get('attendee'))
+        serializer.save(scheduler=scheduler, attendee=attendee)
 
-class MeetingListByUserView(generics.ListAPIView):
-    def get_queryset(self):
-        user_id_value=self.kwargs.get('user_id_value')
-        return Meeting.objects.filter(Q(scheduler__id=user_id_value) | Q(attendee__id=user_id_value)).order_by('start_date')
-    serializer_class = MeetingNestedSerializer
+    @action(detail=False, methods=['GET'])
+    def list_by_user(self, request):
+        user_id = request.query_params.get('user_id')
+        queryset = Meeting.objects.filter(
+            Q(scheduler__id=user_id) | Q(attendee__id=user_id)
+        ).order_by('start_date')
 
-class ActionItemListView(generics.ListCreateAPIView):
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+class ActionItemViewSet(viewsets.ModelViewSet):
     queryset = ActionItem.objects.all()
-    serializer_class = ActionItemNestedSerializer
 
-class ActionItemCreateView(generics.ListCreateAPIView):
-    queryset = ActionItem.objects.all()
-    serializer_class = ActionItemFlatSerializer
+    def get_serializer_class(self):
+        if self.action in ('create','update'):
+            return AgendaItemFlatSerializer
+        return AgendaItemNestedSerializer
 
-class ActionItemListByIDView(generics.ListAPIView):
-    def get_queryset(self):
-        id_value = self.kwargs.get('id_value')
-        return ActionItem.objects.filter(id=id_value)
-    serializer_class = ActionItemNestedSerializer
+    @action(detail=False, methods=['GET'])
+    def list_by_user(self, request):
+        user_id = request.query_params.get('user_id')
+        queryset = ActionItem.objects.filter(Q(assignee__id=user_id))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
-class ActionItemListByUserView(generics.ListAPIView):
-    def get_queryset(self):
-        user_id_value=self.kwargs.get('user_id_value')
-        return ActionItem.objects.filter(Q(assignee__id=user_id_value))
-    serializer_class = ActionItemNestedSerializer
+    @action(detail=False, methods=['GET'])
+    def list_by_meeting(self, request):
+        meeting_id = request.query_params.get('meeting_id')
+        queryset = ActionItem.objects.filter(Q(meeting__id=meeting_id))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
-class ActionItemListByMeetingView(generics.ListAPIView):
-    def get_queryset(self):
-        meeting_id_value=self.kwargs.get('meeting_id_value')
-        return ActionItem.objects.filter(Q(assignee__id=meeting_id_value))
-    serializer_class = ActionItemNestedSerializer
-
-class QuestionListView(generics.ListAPIView):
+class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
-    serializer_class = QuestionFlatSerializer
+    serializer_class = QuestionSerializer
 
-class QuestionCreateView(generics.CreateAPIView):
-    queryset = Question.objects.all()
-    serializer_class = QuestionFlatSerializer
-
-class QuestionListByIDView(generics.ListAPIView):
-    def get_queryset(self):
-        id_value = self.kwargs.get('id_value')
-        return Question.objects.filter(id=id_value)
-    serializer_class = QuestionFlatSerializer
-
-class QuestionAnswerListView(generics.ListAPIView):
+class QuestionAnswerViewSet(viewsets.ModelViewSet):
     queryset = QuestionAnswer.objects.all()
-    serializer_class = QuestionAnswerNestedSerializer
 
-class QuestionAnswerCreateView(generics.CreateAPIView):
-    queryset = QuestionAnswer.objects.all()
-    serializer_class = QuestionAnswerFlatSerializer
+    def get_serializer_class(self):
+        if self.action in ('create','update'):
+            return MeetingFlatSerializer
+        return MeetingNestedSerializer
 
-class QuestionAnswerListByIDView(generics.ListAPIView):
-    def get_queryset(self):
-        id_value = self.kwargs.get('id_value')
-        return QuestionAnswer.objects.filter(id=id_value)
-    serializer_class = QuestionAnswerNestedSerializer
 
-class AgendaItemListView(generics.ListAPIView):
+class AgendaItemViewSet(viewsets.ModelViewSet):
     queryset = AgendaItem.objects.all()
     serializer_class = AgendaItemNestedSerializer
 
-class AgendaItemCreateView(generics.CreateAPIView):
-    queryset = AgendaItem.objects.all()
-    serializer_class = AgendaItemFlatSerializer
-
-class AgendaItemListByIDView(generics.ListAPIView):
-    def get_queryset(self):
-        id_value = self.kwargs.get('id_value')
-        return AgendaItem.objects.filter(id=id_value)
-    serializer_class = AgendaItemNestedSerializer
-
-class AgendaItemListByMeetingView(generics.ListAPIView):
-    def get_queryset(self):
-        meeting_id_value=self.kwargs.get('meeting_id_value')
-        return AgendaItem.objects.filter(Q(meeting__id=meeting_id_value))
-    serializer_class = AgendaItemNestedSerializer
+    @action(detail=False, methods=['GET'])
+    def list_by_meeting(self, request):
+        meeting_id = request.query_params.get('meeting_id')
+        queryset = AgendaItem.objects.filter(Q(meeting__id=meeting_id))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
     
