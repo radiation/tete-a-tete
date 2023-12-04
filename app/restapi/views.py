@@ -10,7 +10,6 @@ from .serializers import *
 def email_confirm_redirect(request, key):
     return HttpResponseRedirect(f"{settings.EMAIL_CONFIRM_REDIRECT_BASE_URL}{key}/")
 
-
 def password_reset_confirm_redirect(request, uidb64, token):
     return HttpResponseRedirect(f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/")
 
@@ -63,6 +62,14 @@ class ActionItemViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['POST'])
+    def mark_complete(self, request):
+        action_item_id = request.data.get('action_item_id')
+        action_item = ActionItem.objects.get(pk=action_item_id)
+        action_item.completed = True
+        action_item.save()
+        return Response(status=status.HTTP_200_OK)
+    
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
@@ -75,7 +82,6 @@ class QuestionAnswerViewSet(viewsets.ModelViewSet):
             return MeetingFlatSerializer
         return MeetingNestedSerializer
 
-
 class AgendaItemViewSet(viewsets.ModelViewSet):
     queryset = AgendaItem.objects.all()
     serializer_class = AgendaItemNestedSerializer
@@ -87,3 +93,10 @@ class AgendaItemViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
+    @action(detail=False, methods=['POST'])
+    def mark_complete(self, request):
+        agenda_item_id = request.data.get('agenda_item_id')
+        agenda_item = AgendaItem.objects.get(pk=agenda_item_id)
+        agenda_item.completed = True
+        agenda_item.save()
+        return Response(status=status.HTTP_200_OK)
