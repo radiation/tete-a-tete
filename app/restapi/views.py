@@ -1,6 +1,8 @@
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from dj_rest_auth.registration.views import RegisterView
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -100,3 +102,8 @@ class AgendaItemViewSet(viewsets.ModelViewSet):
         agenda_item.completed = True
         agenda_item.save()
         return Response(status=status.HTTP_200_OK)
+    
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = "http://localhost:8000/"
+    client_class = OAuth2Client

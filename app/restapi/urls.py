@@ -12,6 +12,7 @@ from dj_rest_auth.views import (
     PasswordResetConfirmView,
     PasswordResetView,
 )
+from allauth.socialaccount.views import signup
 from .views import *
 
 router = DefaultRouter()
@@ -27,6 +28,8 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="rest_login"),
     path("logout/", LogoutView.as_view(), name="rest_logout"),
     path("user/", UserDetailsView.as_view(), name="rest_user_details"),
+    path("signup/", signup, name="socialaccount_signup"),
+    path("google/", GoogleLogin.as_view(), name="google_login"),
     path("register/verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
     path("register/resend-email/", ResendEmailVerificationView.as_view(), name="rest_resend_email"),
     path("account-confirm-email/<str:key>/", email_confirm_redirect, name="account_confirm_email"),
