@@ -1,6 +1,4 @@
-# Project Name
-
-tete-a-tete
+# Tête-À-Tête
 
 ## Description
 
