@@ -1,8 +1,5 @@
+.env
 .venv
 __pycache__/
-populate.sql
-reset_db.sh
 db.sqlite3
-.env.prod
-.env.prod.db
-app/db.sqlite3
+celerybeat-scheduler
