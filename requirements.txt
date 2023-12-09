@@ -1,5 +1,6 @@
 django
 django-cors-headers
+django-mailer
 djangorestframework
 drf-writable-nested
 psycopg2-binary

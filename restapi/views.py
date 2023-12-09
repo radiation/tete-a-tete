@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import *
 from .serializers import *
+from .tasks import *
 
 def email_confirm_redirect(request, key):
     return HttpResponseRedirect(f"{settings.EMAIL_CONFIRM_REDIRECT_BASE_URL}{key}/")
@@ -18,6 +19,9 @@ def password_reset_confirm_redirect(request, uidb64, token):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+
+    def perform_create(self, serializer):
+        create_record.delay(serializer)
 
 class MeetingViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
@@ -30,7 +34,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         scheduler = CustomUser.objects.get(pk=self.request.data.get('scheduler'))
         attendee = CustomUser.objects.get(pk=self.request.data.get('attendee'))
-        serializer.save(scheduler=scheduler, attendee=attendee)
+        create_meeting.delay(serializer, scheduler, attendee)
 
     @action(detail=False, methods=['GET'])
     def list_by_user(self, request):
@@ -47,8 +51,13 @@ class ActionItemViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ('create','update'):
-            return AgendaItemFlatSerializer
-        return AgendaItemNestedSerializer
+            return ActionItemFlatSerializer
+        return ActionItemNestedSerializer
+
+    def perform_create(self, serializer):
+        meeting = Meeting.objects.get(pk=self.request.data.get('meeting'))
+        assignee = CustomUser.objects.get(pk=self.request.data.get('assignee'))
+        create_actionitem.delay(serializer, meeting, assignee)
 
     @action(detail=False, methods=['GET'])
     def list_by_user(self, request):
@@ -76,6 +85,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
 
+    def perform_create(self, serializer):
+        create_record.delay(serializer)
+
 class QuestionAnswerViewSet(viewsets.ModelViewSet):
     queryset = QuestionAnswer.objects.all()
 
@@ -83,10 +95,24 @@ class QuestionAnswerViewSet(viewsets.ModelViewSet):
         if self.action in ('create','update'):
             return MeetingFlatSerializer
         return MeetingNestedSerializer
+    
+    def perform_create(self, serializer):
+        question = Question.objects.get(pk=self.request.data.get('question'))
+        asker = CustomUser.objects.get(pk=self.request.data.get('asker'))
+        answerer = CustomUser.objects.get(pk=self.request.data.get('answerer'))
+        create_questionanswer.delay(serializer, question, asker, answerer)
 
 class AgendaItemViewSet(viewsets.ModelViewSet):
     queryset = AgendaItem.objects.all()
-    serializer_class = AgendaItemNestedSerializer
+
+    def get_serializer_class(self):
+        if self.action in ('create','update'):
+            return AgendaItemFlatSerializer
+        return AgendaItemNestedSerializer
+
+    def perform_create(self, serializer):
+        meeting = Meeting.objects.get(pk=self.request.data.get('meeting'))
+        create_agendaitem.delay(serializer, meeting)
 
     @action(detail=False, methods=['GET'])
     def list_by_meeting(self, request):

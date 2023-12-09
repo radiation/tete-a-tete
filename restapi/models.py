@@ -20,7 +20,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-    
+
 class Meeting(models.Model):    
     scheduler = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="meetings_scheduler_related", on_delete=models.CASCADE)
     attendee = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="meetings_attendee_related", on_delete=models.CASCADE)
@@ -36,8 +36,8 @@ class Meeting(models.Model):
 class ActionItem(models.Model):
     meeting = models.ForeignKey(Meeting, related_name="actionitems_meeting_related", on_delete=models.CASCADE)
     assignee = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="actionitems_assignee_related", on_delete=models.CASCADE)
-    completed = models.BooleanField()
-    todo_item = models.TextField()
+    completed = models.BooleanField(default=False)
+    todo_item = models.TextField(default="Check off this box when you are done with this task")
 
 class Question(models.Model):
     question_text = models.TextField()
