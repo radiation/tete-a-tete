@@ -1,8 +1,41 @@
-from celery import shared_task
+from celery import Celery, shared_task
+from celery.schedules import crontab
+from django import test
 
 from .models import CustomUser
 from .serializers import *
 
+app = Celery()
+
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    # Calls test('hello') every 10 seconds.
+    sender.add_periodic_task(10.0, test.s('hello'), name='add every 10')
+
+    # Calls test('world') every 30 seconds
+    sender.add_periodic_task(30.0, test.s('world'), expires=10)
+
+    # Executes every Monday morning at 7:30 a.m.
+    sender.add_periodic_task(
+        crontab(hour=7, minute=30, day_of_week=1),
+        test.s('Happy Mondays!'),
+    )
+
+    # Send reminders every morning at 9am
+    sender.add_periodic_task(
+        crontab(hour=9, minute=0),
+        send_reminder.s(),
+    )
+
+# Send periodic emails to users with outstanding action items
+@shared_task
+def send_reminder():
+    pass
+
+# Send email asynchronously based on meeting time or due date
+@shared_task
+def send_email():
+    pass
 
 @shared_task
 def create_record(serializer):
