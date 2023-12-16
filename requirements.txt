@@ -11,3 +11,4 @@ django-allauth
 flower
 redis
 requests
+django-celery-results

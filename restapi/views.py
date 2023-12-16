@@ -112,7 +112,8 @@ class AgendaItemViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         meeting = Meeting.objects.get(pk=self.request.data.get('meeting'))
-        create_agendaitem.delay(serializer, meeting)
+        reminder_date = meeting.start_time - timezone.timedelta(hours=24)
+        create_agendaitem.delay(serializer, meeting, reminder_date)
 
     @action(detail=False, methods=['GET'])
     def list_by_meeting(self, request):

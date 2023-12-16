@@ -41,6 +41,7 @@ class ActionItem(models.Model):
     assignee = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="actionitems_assignee_related", on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     todo_item = models.TextField(default="Check off this box when you are done with this task")
+    reminder_date = models.DateTimeField(null=True, blank=True)
 
 class Question(models.Model):
     question_text = models.TextField()
@@ -55,3 +56,4 @@ class AgendaItem(models.Model):
     meeting = models.ForeignKey(Meeting, related_name="agendaitems_meeting_related", on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     description = models.TextField(default="")
+    reminder_date = models.DateTimeField(null=True, blank=True)
