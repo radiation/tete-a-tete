@@ -1,69 +1,73 @@
 from rest_framework import serializers
-from drf_writable_nested import WritableNestedModelSerializer
 from .models import *
-'''    scheduler = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
-    attendee = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
-'''
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = '__all__'
 
-class MeetingFlatSerializer(WritableNestedModelSerializer):
-    scheduler = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
-    attendee = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+class UserPreferencesSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    class Meta:
+        model = UserPreferences
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        self.fields['user'] = UserSerializer(read_only=True)
+        return super(UserPreferencesSerializer, self).to_representation(instance)
+
+class EventTimeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventTime
+        fields = '__all__'
+
+class MeetingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meeting
         fields = '__all__'
 
-class MeetingNestedSerializer(WritableNestedModelSerializer):
-    scheduler = UserSerializer()
-    attendee = UserSerializer()
+class TaskSerializer(serializers.ModelSerializer):
+    assignee = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
     class Meta:
-        model = Meeting
+        model = Task
         fields = '__all__'
 
-class ActionItemFlatSerializer(WritableNestedModelSerializer):
+    def to_representation(self, instance):
+        self.fields['assignee'] = UserSerializer(read_only=True)
+        return super(TaskSerializer, self).to_representation(instance)
+
+class MeetingTaskSerializer(serializers.ModelSerializer):
     meeting = serializers.PrimaryKeyRelatedField(queryset=Meeting.objects.all())
+    task = serializers.PrimaryKeyRelatedField(queryset=Task.objects.all())
     class Meta:
-        model = ActionItem
+        model = MeetingTask
         fields = '__all__'
 
-class ActionItemNestedSerializer(WritableNestedModelSerializer):
-    meeting = MeetingNestedSerializer()
-    class Meta:
-        model = ActionItem
-        fields = '__all__'
+    def to_representation(self, instance):
+        self.fields['meeting'] = MeetingSerializer(read_only=True)
+        self.fields['task'] = TaskSerializer(read_only=True)
+        return super(MeetingTaskSerializer, self).to_representation(instance)
 
-class QuestionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Question
-        fields = '__all__'
-
-class QuestionAnswerFlatSerializer(WritableNestedModelSerializer):
-    question = serializers.PrimaryKeyRelatedField(queryset=Question.objects.all())
-    asker = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
-    answerer = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
-    class Meta:
-        model = QuestionAnswer
-        fields = '__all__'
-
-class QuestionAnswerNestedSerializer(WritableNestedModelSerializer):
-    question = QuestionSerializer()
-    asker = UserSerializer()
-    answerer = UserSerializer()
-    class Meta:
-        model = QuestionAnswer
-        fields = '__all__'
-
-class AgendaItemFlatSerializer(WritableNestedModelSerializer):
+class MeetingAttendeeSerializer(serializers.ModelSerializer):
     meeting = serializers.PrimaryKeyRelatedField(queryset=Meeting.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
     class Meta:
-        model = AgendaItem
+        model = MeetingAttendee
         fields = '__all__'
 
-class AgendaItemNestedSerializer(WritableNestedModelSerializer):
-    meeting = MeetingNestedSerializer()
+    def to_representation(self, instance):
+        self.fields['meeting'] = MeetingSerializer(read_only=True)
+        self.fields['user'] = UserSerializer(read_only=True)
+        return super(MeetingAttendeeSerializer, self).to_representation(instance)
+
+class UserDigestSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    send_time = serializers.PrimaryKeyRelatedField(queryset=EventTime.objects.all())
     class Meta:
-        model = AgendaItem
+        model = UserDigest
         fields = '__all__'
+
+    def to_representation(self, instance):
+        self.fields['user'] = UserSerializer(read_only=True)
+        self.fields['send_time'] = EventTimeSerializer(read_only=True)
+        return super(UserDigestSerializer, self).to_representation(instance)

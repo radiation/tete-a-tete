@@ -18,10 +18,11 @@ from .views import *
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'meetings', MeetingViewSet)
-router.register(r'actionitems', ActionItemViewSet)
-router.register(r'questions', QuestionViewSet)
-router.register(r'questionanswers', QuestionAnswerViewSet)
-router.register(r'agendaitems', AgendaItemViewSet)
+router.register(r'tasks', TaskViewSet)
+router.register(r'user_preferences', UserPreferencesViewSet)
+router.register(r'event_times', EventTimeViewSet)
+router.register(r'meeting_tasks', MeetingTaskViewSet)
+router.register(r'meeting_attendees', MeetingAttendeeViewSet)
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="rest_register"),

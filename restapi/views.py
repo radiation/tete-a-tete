@@ -10,31 +10,79 @@ from .models import *
 from .serializers import *
 from .tasks import *
 
+
 def email_confirm_redirect(request, key):
     return HttpResponseRedirect(f"{settings.EMAIL_CONFIRM_REDIRECT_BASE_URL}{key}/")
 
 def password_reset_confirm_redirect(request, uidb64, token):
     return HttpResponseRedirect(f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/")
 
-class UserViewSet(viewsets.ModelViewSet):
+'''
+Base viewset class that automatically creates or updates records asynchronously
+'''
+class AsyncModelViewSet(viewsets.ModelViewSet):
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            model_name = self.get_serializer_class().Meta.model.__name__
+            create_or_update_record.delay(serializer.validated_data, model_name, create=True)
+
+    def perform_update(self, serializer):
+        if serializer.is_valid():
+            model_name = self.get_serializer_class().Meta.model.__name__
+            create_or_update_record.delay(serializer.validated_data, model_name, create=False)
+
+    def get_serializer_class(self):
+        # This method should be overridden in the subclass to return the appropriate serializer
+        raise NotImplementedError("Subclasses must override get_serializer_class()")
+
+class UserViewSet(AsyncModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
 
-    def perform_create(self, serializer):
-        create_record.delay(serializer)
-
-class MeetingViewSet(viewsets.ModelViewSet):
+class MeetingViewSet(AsyncModelViewSet):
     queryset = Meeting.objects.all()
+    serializer_class = MeetingSerializer
 
-    def get_serializer_class(self):
-        if self.action in ('create','update'):
-            return MeetingFlatSerializer
-        return MeetingNestedSerializer
+class TaskViewSet(AsyncModelViewSet):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
 
-    def perform_create(self, serializer):
-        scheduler = CustomUser.objects.get(pk=self.request.data.get('scheduler'))
-        attendee = CustomUser.objects.get(pk=self.request.data.get('attendee'))
-        create_meeting.delay(serializer, scheduler, attendee)
+    @action(detail=False, methods=['GET'])
+    def list_by_user(self, request):
+        user_id = request.query_params.get('user_id')
+        queryset = Task.objects.filter(Q(assignee__id=user_id))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['POST'])
+    def mark_complete(self, request):
+        action_item_id = request.data.get('action_item_id')
+        action_item = Task.objects.get(pk=action_item_id)
+        action_item.completed = True
+        action_item.save()
+        return Response(status=status.HTTP_200_OK)
+
+class MeetingTaskViewSet(AsyncModelViewSet):
+    queryset = MeetingTask.objects.all()
+    serializer_class = MeetingTaskSerializer
+
+    @action(detail=False, methods=['GET'])
+    def list_by_meeting(self, request):
+        meeting_id = request.query_params.get('meeting_id')
+        queryset = Task.objects.filter(Q(meeting__id=meeting_id))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+class MeetingAttendeeViewSet(AsyncModelViewSet):
+    queryset = MeetingAttendee.objects.all()
+    serializer_class = MeetingAttendeeSerializer
+
+    @action(detail=False, methods=['GET'])
+    def list_by_meeting(self, request):
+        meeting_id = request.query_params.get('meeting_id')
+        queryset = Task.objects.filter(Q(meeting__id=meeting_id))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['GET'])
     def list_by_user(self, request):
@@ -42,93 +90,16 @@ class MeetingViewSet(viewsets.ModelViewSet):
         queryset = Meeting.objects.filter(
             Q(scheduler__id=user_id) | Q(attendee__id=user_id)
         ).order_by('start_date')
-
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-class ActionItemViewSet(viewsets.ModelViewSet):
-    queryset = ActionItem.objects.all()
+class UserPreferencesViewSet(AsyncModelViewSet):
+    queryset = UserPreferences.objects.all()
+    serializer_class = UserPreferencesSerializer
 
-    def get_serializer_class(self):
-        if self.action in ('create','update'):
-            return ActionItemFlatSerializer
-        return ActionItemNestedSerializer
-
-    def perform_create(self, serializer):
-        meeting = Meeting.objects.get(pk=self.request.data.get('meeting'))
-        assignee = CustomUser.objects.get(pk=self.request.data.get('assignee'))
-        create_actionitem.delay(serializer, meeting, assignee)
-
-    @action(detail=False, methods=['GET'])
-    def list_by_user(self, request):
-        user_id = request.query_params.get('user_id')
-        queryset = ActionItem.objects.filter(Q(assignee__id=user_id))
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['GET'])
-    def list_by_meeting(self, request):
-        meeting_id = request.query_params.get('meeting_id')
-        queryset = ActionItem.objects.filter(Q(meeting__id=meeting_id))
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['POST'])
-    def mark_complete(self, request):
-        action_item_id = request.data.get('action_item_id')
-        action_item = ActionItem.objects.get(pk=action_item_id)
-        action_item.completed = True
-        action_item.save()
-        return Response(status=status.HTTP_200_OK)
-    
-class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-
-    def perform_create(self, serializer):
-        create_record.delay(serializer)
-
-class QuestionAnswerViewSet(viewsets.ModelViewSet):
-    queryset = QuestionAnswer.objects.all()
-
-    def get_serializer_class(self):
-        if self.action in ('create','update'):
-            return MeetingFlatSerializer
-        return MeetingNestedSerializer
-    
-    def perform_create(self, serializer):
-        question = Question.objects.get(pk=self.request.data.get('question'))
-        asker = CustomUser.objects.get(pk=self.request.data.get('asker'))
-        answerer = CustomUser.objects.get(pk=self.request.data.get('answerer'))
-        create_questionanswer.delay(serializer, question, asker, answerer)
-
-class AgendaItemViewSet(viewsets.ModelViewSet):
-    queryset = AgendaItem.objects.all()
-
-    def get_serializer_class(self):
-        if self.action in ('create','update'):
-            return AgendaItemFlatSerializer
-        return AgendaItemNestedSerializer
-
-    def perform_create(self, serializer):
-        meeting = Meeting.objects.get(pk=self.request.data.get('meeting'))
-        reminder_date = meeting.start_time - timezone.timedelta(hours=24)
-        create_agendaitem.delay(serializer, meeting, reminder_date)
-
-    @action(detail=False, methods=['GET'])
-    def list_by_meeting(self, request):
-        meeting_id = request.query_params.get('meeting_id')
-        queryset = AgendaItem.objects.filter(Q(meeting__id=meeting_id))
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['POST'])
-    def mark_complete(self, request):
-        agenda_item_id = request.data.get('agenda_item_id')
-        agenda_item = AgendaItem.objects.get(pk=agenda_item_id)
-        agenda_item.completed = True
-        agenda_item.save()
-        return Response(status=status.HTTP_200_OK)
+class EventTimeViewSet(AsyncModelViewSet):
+    queryset = EventTime.objects.all()
+    serializer_class = EventTimeSerializer
     
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
