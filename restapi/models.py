@@ -37,7 +37,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class UserPreferences(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     timezone = models.CharField(max_length=50, default="UTC")
-    working_days = models.ArrayField(models.IntegerField(choices=[(tag, tag.value) for tag in DaysOfWeek]))
+    working_days = models.IntegerField(models.IntegerField(choices=[(tag, tag.value) for tag in DaysOfWeek]))
     working_hours_start = models.TimeField(default="09:00:00")
     working_hours_end = models.TimeField(default="17:00:00")
 
@@ -48,8 +48,8 @@ class EventTime(models.Model):
     unique_together = ("day", "time")
 
 class UserDigest(models.Model):
-    user = models.OneToManyField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    send_time = models.OneToManyField(EventTime, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    send_time = models.ForeignKey(EventTime, on_delete=models.CASCADE)
 
 class Task(models.Model):
     assignee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)

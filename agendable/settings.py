@@ -34,12 +34,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     "allauth.socialaccount.providers.google",
-    'mailer',
     'dj_rest_auth',
     'dj_rest_auth.registration',
-    'channels',
     'django_celery_beat',
-    'django_celery_results',
     'corsheaders',
     'restapi.apps.RestapiConfig',
 ]
