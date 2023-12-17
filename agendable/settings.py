@@ -57,7 +57,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-ROOT_URLCONF = 'tete_a_tete.urls'
+ROOT_URLCONF = 'agendable.urls'
 
 TEMPLATES = [
     {
@@ -75,7 +75,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'tete_a_tete.wsgi.application'
+WSGI_APPLICATION = 'agendable.wsgi.application'
 
 
 # Database

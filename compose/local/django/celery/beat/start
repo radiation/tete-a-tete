@@ -4,4 +4,4 @@ set -o errexit
 set -o nounset
 
 rm -f './celerybeat.pid'
-celery -A tete_a_tete beat -l INFO
+celery -A agendable beat -l INFO
