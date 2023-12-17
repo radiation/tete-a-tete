@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
-    image: tete_a_tete_web
+    image: agendable_web
     command: /start
     volumes:
       - .:/app
@@ -23,16 +23,16 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=tete_a_tete
-      - POSTGRES_PASSWORD=tete_a_tete
-      - POSTGRES_DB=tete_a_tete_dev
+      - POSTGRES_USER=agendable
+      - POSTGRES_PASSWORD=agendable
+      - POSTGRES_DB=agendable_dev
   redis:
     image: redis:7-alpine
   celery_worker:
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
-    image: tete_a_tete_celery_worker
+    image: agendable_celery_worker
     command: /start-celeryworker
     volumes:
       - .:/app
@@ -45,7 +45,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
-    image: tete_a_tete_celery_beat
+    image: agendable_celery_beat
     command: /start-celerybeat
     volumes:
       - .:/app
@@ -58,7 +58,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
-    image: tete_a_tete_celery_flower
+    image: agendable_celery_flower
     command: /start-flower
     volumes:
       - .:/app

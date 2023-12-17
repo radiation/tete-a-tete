@@ -6,9 +6,9 @@ from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tete_a_tete.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agendable.settings')
 
-app = Celery('tete_a_tete')
+app = Celery('agendable')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 

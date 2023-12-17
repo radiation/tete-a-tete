@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 
 worker_ready() {
-    celery -A tete_a_tete inspect ping
+    celery -A agendable inspect ping
 }
 
 until worker_ready; do
@@ -13,6 +13,6 @@ until worker_ready; do
 done
 >&2 echo 'Celery workers is available'
 
-celery -A tete_a_tete \
+celery -A agendable \
     --broker="${CELERY_BROKER}" \
     flower
