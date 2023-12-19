@@ -11,11 +11,11 @@ user_jane=CustomUser.objects.create(
     last_name="Doe", 
     email_address="jane.doe@example.com"
 )
-meeting_jj=Meeting.objects.create(scheduler=user_john, attendee=user_jane, start_date="2022-01-01", end_date="2022-01-02")
-action_item = ActionItem.objects.create(meeting=meeting_jj, assignee=user_john, completed=False, todo_item="Do something")
-question = Question.objects.create(question_text="What is your favorite color?")
-question_answer = QuestionAnswer.objects.create(question=question, asker=user_john, answerer=user_jane, answer_text="Blue")
-agenda_item = AgendaItem.objects.create(meeting=meeting_jj, title="Agenda Item Title", description="Agenda Item Description")
+meeting=Meeting.objects.create(scheduler=user_john, attendee=user_jane, start_date="2022-01-01", end_date="2022-01-02")
+meeting_attendee_john=MeetingAttendee.objects.create(meeting=meeting, user=user_john, is_scheduler=True)
+meeting_attendee_jane=MeetingAttendee.objects.create(meeting=meeting, user=user_jane, is_scheduler=False)
+task_john=Task.objects.create(assignee=user_john, title="Task 1", description="Description 1", due_date="2022-01-01", completed=False, completed_date=None, created_at="2021-01-01")
+task_jane=Task.objects.create(assignee=user_jane, title="Task 2", description="Description 2", due_date="2022-01-02", completed=False, completed_date=None, created_at="2021-01-02")
 
 class UserModelTest(TestCase):
     def test_user_creation(self):
@@ -26,32 +26,25 @@ class UserModelTest(TestCase):
 
 class MeetingModelTest(TestCase):
     def test_meeting_creation(self):
-        self.assertEqual(meeting_jj.scheduler, user_john)
-        self.assertEqual(meeting_jj.attendee, user_jane)
-        self.assertEqual(meeting_jj.start_date, "2022-01-01")
-        self.assertEqual(meeting_jj.end_date, "2022-01-02")
-        self.assertEqual(meeting_jj.num_reschedules, 0)
+        self.assertEqual(meeting.scheduler, user_john)
+        self.assertEqual(meeting.attendee, user_jane)
+        self.assertEqual(meeting.start_date, "2022-01-01")
+        self.assertEqual(meeting.end_date, "2022-01-02")
+        self.assertEqual(meeting.num_reschedules, 0)
 
-class ActionItemModelTest(TestCase):
-    def test_action_item_creation(self):
-        self.assertEqual(action_item.meeting, meeting_jj)
-        self.assertEqual(action_item.assignee, user_john)
-        self.assertFalse(action_item.completed)
-        self.assertEqual(action_item.todo_item, "Do something")
+class MeetingAttendeeModelTest(TestCase):
+    def test_meeting_attendee_creation(self):
+        self.assertEqual(meeting_attendee_john.meeting, meeting)
+        self.assertEqual(meeting_attendee_john.user, user_john)
+        self.assertEqual(meeting_attendee_jane.user, user_jane)
+        self.assertEqual(meeting_attendee_john.is_scheduler, True)
+        self.assertEqual(meeting_attendee_jane.is_scheduler, False)
 
-class QuestionModelTest(TestCase):
-    def test_question_creation(self):
-        self.assertEqual(question.question_text, "What is your favorite color?")
-
-class QuestionAnswerModelTest(TestCase):
-    def test_question_answer_creation(self):
-        self.assertEqual(question_answer.question, question)
-        self.assertEqual(question_answer.asker, user_john)
-        self.assertEqual(question_answer.answerer, user_jane)
-        self.assertEqual(question_answer.answer_text, "Blue")
-
-class AgendaItemModelTest(TestCase):
-    def test_agenda_item_creation(self):
-        self.assertEqual(agenda_item.meeting, meeting_jj)
-        self.assertEqual(agenda_item.title, "Agenda Item Title")
-        self.assertEqual(agenda_item.description, "Agenda Item Description")
+class TaskModelTest(TestCase):
+    def test_task_creation(self):
+        self.assertEqual(task_john.title, "Task 1")
+        self.assertEqual(task_john.description, "Description 1")
+        self.assertEqual(task_john.due_date, "2022-01-01")
+        self.assertEqual(task_john.completed, False)
+        self.assertEqual(task_john.completed_date, None)
+        self.assertEqual(task_john.created_at, "2021-01-01")
