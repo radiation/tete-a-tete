@@ -21,54 +21,29 @@ def password_reset_confirm_redirect(request, uidb64, token):
     return HttpResponseRedirect(f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/")
 
 '''
+For looking up related models
+'''
+relations_dict = {
+    'assignee': CustomUser,
+    'meeting': Meeting,
+    'task': Task,
+    'user': CustomUser,
+}
+
+'''
 Base viewset class that automatically creates or updates records asynchronously
 '''
 class AsyncModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if serializer.is_valid():
             model_name = self.get_serializer_class().Meta.model.__name__
-            data = serializer.validated_data
+            data_dict = dict(serializer.validated_data)
 
-            # Log the validated data
-            print(f"Validated data before conversion: {data}")
+            for key in relations_dict:
+                if key in data_dict:
+                    if isinstance(data_dict[key], relations_dict[key]):
+                        data_dict[key] = data_dict[key].id
 
-            # Convert to a regular dictionary
-            data_dict = dict(data)
-
-            # Log the converted data
-            print(f"Data dict after conversion: {data_dict}")
-
-            # Check and replace foreign key field
-            if 'assignee' in data_dict:
-                # Ensure we are dealing with a CustomUser instance
-                if isinstance(data_dict['assignee'], CustomUser):
-                    data_dict['assignee'] = data_dict['assignee'].id
-                    print(f"Assignee ID: {data_dict['assignee']}")
-                else:
-                    print(f"Assignee is not a CustomUser instance: {data_dict['assignee']}")
-            if 'meeting' in data_dict:
-                # Ensure we are dealing with a Meeting instance
-                if isinstance(data_dict['meeting'], Meeting):
-                    data_dict['meeting'] = data_dict['meeting'].id
-                    print(f"Meeting ID: {data_dict['meeting']}")
-                else:
-                    print(f"Meeting is not a Meeting instance: {data_dict['meeting']}")
-            if 'task' in data_dict:
-                # Ensure we are dealing with a Task instance
-                if isinstance(data_dict['task'], Task):
-                    data_dict['task'] = data_dict['task'].id
-                    print(f"Task ID: {data_dict['task']}")
-                else:
-                    print(f"Task is not a Task instance: {data_dict['task']}")
-            if 'user' in data_dict:
-                # Ensure we are dealing with a CustomUser instance
-                if isinstance(data_dict['user'], CustomUser):
-                    data_dict['user'] = data_dict['user'].id
-                    print(f"User ID: {data_dict['user']}")
-                else:
-                    print(f"User is not a CustomUser instance: {data_dict['user']}")
-
-            # Send this dictionary to the Celery task
             create_or_update_record.delay(data_dict, model_name, create=True)
 
     def perform_update(self, serializer):
