@@ -47,12 +47,14 @@ class MeetingTaskSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_representation(self, instance):
-        ret = super(TaskSerializer, self).to_representation(instance)
-        print(ret)
+        ret = super(MeetingTaskSerializer, self).to_representation(instance)
+        print("ret - ", ret)
         if isinstance(instance, dict):
+            print("Instance is a dict")
             meeting_id = instance['meeting']
             task_id = instance['task']
         else:
+            print("Instance is not a dict")
             meeting_id = instance.meeting
             task_id = instance.task
         print(f"Meeting ID: {meeting_id}")
@@ -70,8 +72,9 @@ class MeetingAttendeeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_representation(self, instance):
-        ret = super(TaskSerializer, self).to_representation(instance)
-        print(ret)
+        print("instance - ", instance)
+        ret = super(MeetingAttendeeSerializer, self).to_representation(instance)
+        print("ret - ", ret)
         if isinstance(instance, dict):
             meeting_id = instance['meeting']
             user_id = instance['user']
@@ -81,7 +84,7 @@ class MeetingAttendeeSerializer(serializers.ModelSerializer):
         print(f"Meeting ID: {meeting_id}")
         print(f"Task ID: {user_id}")
         ret['meeting'] = MeetingSerializer(meeting_id).data
-        ret['user'] = TaskSerializer(user_id).data
+        ret['user'] = UserSerializer(user_id).data
         return ret
 
 class UserDigestSerializer(serializers.ModelSerializer):

@@ -46,12 +46,32 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
                     print(f"Assignee ID: {data_dict['assignee']}")
                 else:
                     print(f"Assignee is not a CustomUser instance: {data_dict['assignee']}")
+            if 'meeting' in data_dict:
+                # Ensure we are dealing with a Meeting instance
+                if isinstance(data_dict['meeting'], Meeting):
+                    data_dict['meeting'] = data_dict['meeting'].id
+                    print(f"Meeting ID: {data_dict['meeting']}")
+                else:
+                    print(f"Meeting is not a Meeting instance: {data_dict['meeting']}")
+            if 'task' in data_dict:
+                # Ensure we are dealing with a Task instance
+                if isinstance(data_dict['task'], Task):
+                    data_dict['task'] = data_dict['task'].id
+                    print(f"Task ID: {data_dict['task']}")
+                else:
+                    print(f"Task is not a Task instance: {data_dict['task']}")
+            if 'user' in data_dict:
+                # Ensure we are dealing with a CustomUser instance
+                if isinstance(data_dict['user'], CustomUser):
+                    data_dict['user'] = data_dict['user'].id
+                    print(f"User ID: {data_dict['user']}")
+                else:
+                    print(f"User is not a CustomUser instance: {data_dict['user']}")
 
             # Send this dictionary to the Celery task
             create_or_update_record.delay(data_dict, model_name, create=True)
 
     def perform_update(self, serializer):
-
         if serializer.is_valid():
             model_name = self.get_serializer_class().Meta.model.__name__
             create_or_update_record.delay(serializer.validated_data, model_name, create=False)
@@ -63,6 +83,9 @@ class UserViewSet(AsyncModelViewSet):
 class MeetingViewSet(AsyncModelViewSet):
     queryset = Meeting.objects.all()
     serializer_class = MeetingSerializer
+
+    def get_serializer_class(self):
+        return self.serializer_class
 
 class TaskViewSet(AsyncModelViewSet):
     queryset = Task.objects.all()
