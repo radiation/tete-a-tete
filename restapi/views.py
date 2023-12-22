@@ -30,11 +30,7 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             model_name = self.get_serializer_class().Meta.model.__name__
             create_or_update_record.delay(serializer.validated_data, model_name, create=False)
-
-    def get_serializer_class(self):
-        # This method should be overridden in the subclass to return the appropriate serializer
-        raise NotImplementedError("Subclasses must override get_serializer_class()")
-
+        
 class UserViewSet(AsyncModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
@@ -42,6 +38,9 @@ class UserViewSet(AsyncModelViewSet):
 class MeetingViewSet(AsyncModelViewSet):
     queryset = Meeting.objects.all()
     serializer_class = MeetingSerializer
+
+    def get_serializer_class(self):
+        return self.serializer_class
 
 class TaskViewSet(AsyncModelViewSet):
     queryset = Task.objects.all()

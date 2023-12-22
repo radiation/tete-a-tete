@@ -34,11 +34,11 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     "allauth.socialaccount.providers.google",
+    'mailer',
     'dj_rest_auth',
     'dj_rest_auth.registration',
-    'django_celery_beat',
     'corsheaders',
-    'restapi.apps.RestapiConfig',
+    'restapi',
 ]
 
 MIDDLEWARE = [
@@ -161,7 +161,6 @@ AUTH_USER_MODEL = "restapi.CustomUser"
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://127.0.0.1:6379/0")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://127.0.0.1:6379/0")
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 CHANNEL_LAYERS = {
     'default': {
