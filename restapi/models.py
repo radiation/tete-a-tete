@@ -72,7 +72,7 @@ class Meeting(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.title}'
+        return f'{self.id}'
 
 class MeetingAttendee(models.Model):
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
