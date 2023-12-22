@@ -28,13 +28,16 @@ class MeetingSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     assignee = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    
     class Meta:
         model = Task
         fields = '__all__'
 
     def to_representation(self, instance):
-        self.fields['assignee'] = UserSerializer(read_only=True)
-        return super(TaskSerializer, self).to_representation(instance)
+        ret = super(TaskSerializer, self).to_representation(instance)
+        assignee_email = instance['assignee'] if isinstance(instance, dict) else instance.assignee
+        ret['assignee'] = UserSerializer(assignee_email).data
+        return ret
 
 class MeetingTaskSerializer(serializers.ModelSerializer):
     meeting = serializers.PrimaryKeyRelatedField(queryset=Meeting.objects.all())
@@ -44,21 +47,42 @@ class MeetingTaskSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_representation(self, instance):
-        self.fields['meeting'] = MeetingSerializer(read_only=True)
-        self.fields['task'] = TaskSerializer(read_only=True)
-        return super(MeetingTaskSerializer, self).to_representation(instance)
+        ret = super(TaskSerializer, self).to_representation(instance)
+        print(ret)
+        if isinstance(instance, dict):
+            meeting_id = instance['meeting']
+            task_id = instance['task']
+        else:
+            meeting_id = instance.meeting
+            task_id = instance.task
+        print(f"Meeting ID: {meeting_id}")
+        print(f"Task ID: {task_id}")
+        ret['meeting'] = MeetingSerializer(meeting_id).data
+        ret['task'] = TaskSerializer(task_id).data
+        return ret
 
 class MeetingAttendeeSerializer(serializers.ModelSerializer):
     meeting = serializers.PrimaryKeyRelatedField(queryset=Meeting.objects.all())
     user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+
     class Meta:
         model = MeetingAttendee
         fields = '__all__'
 
     def to_representation(self, instance):
-        self.fields['meeting'] = MeetingSerializer(read_only=True)
-        self.fields['user'] = UserSerializer(read_only=True)
-        return super(MeetingAttendeeSerializer, self).to_representation(instance)
+        ret = super(TaskSerializer, self).to_representation(instance)
+        print(ret)
+        if isinstance(instance, dict):
+            meeting_id = instance['meeting']
+            user_id = instance['user']
+        else:
+            meeting_id = instance.meeting
+            user_id = instance.user
+        print(f"Meeting ID: {meeting_id}")
+        print(f"Task ID: {user_id}")
+        ret['meeting'] = MeetingSerializer(meeting_id).data
+        ret['user'] = TaskSerializer(user_id).data
+        return ret
 
 class UserDigestSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
