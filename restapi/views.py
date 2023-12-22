@@ -9,9 +9,6 @@ from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from .tasks import *
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 def email_confirm_redirect(request, key):
