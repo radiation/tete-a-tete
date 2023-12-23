@@ -1,6 +1,8 @@
-import factory
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from factory.django import DjangoModelFactory
+
+import factory
 
 class CustomUserFactory(DjangoModelFactory):
     class Meta:
@@ -12,4 +14,7 @@ class CustomUserFactory(DjangoModelFactory):
     is_staff = False
     is_superuser = False
     is_active = True
-    date_joined = factory.Faker('past_date')
+    date_joined = factory.Faker('past_datetime', tzinfo=timezone.get_current_timezone())
+    last_login = factory.Faker('past_datetime', tzinfo=timezone.get_current_timezone())
+    password = factory.Faker('password')
+
