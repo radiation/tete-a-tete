@@ -96,6 +96,7 @@ class MeetingAttendee(models.Model):
 class MeetingTask(models.Model):
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now)
 
     unique_together = [["meeting", "task"]]
 

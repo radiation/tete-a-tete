@@ -1,7 +1,7 @@
 import datetime
 from django.test import TestCase
-from restapi.factories import *
-from restapi.models import *
+from restapi.factories import CustomUserFactory, MeetingFactory, MeetingAttendeeFactory, MeetingTaskFactory, TaskFactory
+from restapi.models import CustomUser, Meeting, Task
 
 class UserModelTest(TestCase):
 
@@ -50,3 +50,28 @@ class MeetingAttendeeModelTest(TestCase):
     def test_meeting_attendance(self):
         self.assertTrue(isinstance(self.meeting_attendance.meeting, Meeting))
         self.assertTrue(isinstance(self.meeting_attendance.user, CustomUser))
+
+class TaskModelTest(TestCase):
+
+    @classmethod
+    def setUpTestData(self):
+        self.task = TaskFactory()
+
+    def test_task_fields(self):
+        self.assertTrue(isinstance(self.task.assignee, CustomUser))
+        self.assertTrue(isinstance(self.task.title, str))
+        self.assertTrue(isinstance(self.task.description, str))
+        self.assertTrue(isinstance(self.task.due_date, datetime.datetime))
+        self.assertTrue(isinstance(self.task.completed, bool))
+        self.assertTrue(isinstance(self.task.created_at, datetime.datetime))
+
+class MeetingTaskModelTest(TestCase):
+
+    @classmethod
+    def setUpTestData(self):
+        self.meeting_task = MeetingTaskFactory()
+
+    def test_meeting_task_fields(self):
+        self.assertTrue(isinstance(self.meeting_task.meeting, Meeting))
+        self.assertTrue(isinstance(self.meeting_task.task, Task))
+        self.assertTrue(isinstance(self.meeting_task.created_at, datetime.datetime))
