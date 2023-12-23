@@ -11,3 +11,4 @@ django-allauth
 flower
 redis
 requests
+factory_boy

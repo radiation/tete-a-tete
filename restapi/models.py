@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -71,8 +72,19 @@ class Meeting(models.Model):
     num_reschedules = models.IntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now)
 
+    def clean(self):
+        # Check that end_date is after start_date
+        if self.end_date and self.start_date and self.end_date < self.start_date:
+            raise ValidationError("End date must be after start date")
+
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f'{self.id}'
+        return f'{self.title}'
 
 class MeetingAttendee(models.Model):
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
