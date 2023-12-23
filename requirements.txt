@@ -12,3 +12,4 @@ flower
 redis
 requests
 factory_boy
+coverage

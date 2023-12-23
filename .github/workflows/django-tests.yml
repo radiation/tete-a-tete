@@ -1,4 +1,4 @@
-name: Django Tests
+name: Tests & Coverage
 
 on:
   push:
@@ -28,10 +28,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # Add any other setup steps here (like setting up a database)
-
-    - name: Run Django tests
-      env:
-        DJANGO_SETTINGS_MODULE: agendable.settings
+    - name: Run tests with coverage
       run: |
-        python manage.py test
+        coverage run manage.py test
+  
+    - name: Generate coverage report
+      run: |
+        coverage report
+        coverage xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
