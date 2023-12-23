@@ -25,8 +25,8 @@ class UserModelTest(TestCase):
 class MeetingModelTest(TestCase):
 
     @classmethod
-    def setUpTestData(self):
-        self.meeting = MeetingFactory()
+    def setUpTestData(cls):
+        cls.meeting = MeetingFactory()
 
     def test_meeting_title(self):
         self.assertTrue(isinstance(self.meeting.title, str))

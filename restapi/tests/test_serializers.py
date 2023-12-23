@@ -1,57 +1,91 @@
 from django.test import TestCase
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import is_aware, make_aware
 from restapi.models import *
 from restapi.serializers import *
+from restapi.factories import CustomUserFactory, MeetingFactory
 
-class UserSerializerTestCase(TestCase):
-    def test_user_serializer(self):
+class UserSerializerTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user_instance = CustomUserFactory()
+        cls.serializer = UserSerializer(instance=cls.user_instance)
+
+    def test_contains_expected_fields(self):
+        data = self.serializer.data
+        expected_fields = {'id', 'email', 'first_name', 'last_name', 'password', 
+                           'is_staff', 'is_active', 'is_superuser', 
+                           'date_joined', 'last_login',
+                           'groups', 'user_permissions',
+                           }
+        self.assertEqual(set(data.keys()), expected_fields)
+
+    def test_serialization(self):
+        data = self.serializer.data
+        self.assertEqual(data['email'], self.user_instance.email)
+
+    def test_deserialization_and_validation(self):
         user_data = {
+            'email': 'newuser@example.com',
+            'password': 'password',
             'first_name': 'John',
             'last_name': 'Doe',
-            'email_address': 'john_doe@example.com',
-            'user_name': 'john_doe'
         }
         serializer = UserSerializer(data=user_data)
+        if not serializer.is_valid():
+            print(serializer.errors)
         self.assertTrue(serializer.is_valid())
+
         user = serializer.save()
-        self.assertEqual(user.user_name, 'john_doe')
-        self.assertEqual(user.email_address, 'john_doe@example.com')
+        self.assertEqual(user.email, user_data['email'])
 
-class MeetingSerializerTestCase(TestCase):
-    def test_meeting_serializer(self):
-        scheduler_data = {
-            'first_name': 'George',
-            'last_name': 'Washington',
-            'email_address': 'falseteeth@us.gov',
-            'user_name': 'george_washington'
+    def test_invalid_deserialization(self):
+        invalid_data = {
+            'email': 'invalidemail',
         }
-        attendee_data = {
-            'first_name': 'Abraham',
-            'last_name': 'Lincoln',
-            'email_address': 'fourscore@us.gov',
-            'user_name': 'abraham_lincoln'
+        serializer = UserSerializer(data=invalid_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('email', serializer.errors)
+
+class MeetingSerializerTest(TestCase):
+
+    @classmethod
+    def setUpTestData(self):
+        self.meeting_instance = MeetingFactory()
+        self.serializer = MeetingSerializer(instance=self.meeting_instance)
+
+    def test_contains_expected_fields(self):
+        data = self.serializer.data
+        self.assertEqual(set(data.keys()), set(['id', 'title', 'start_date', 'end_date', 'notes', 'num_reschedules', 'created_at']))
+
+    def test_serialization(self):
+        data = self.serializer.data
+        self.assertEqual(data['title'], self.meeting_instance.title)
+        self.assertEqual(parse_datetime(data['start_date']), self.meeting_instance.start_date)
+        self.assertEqual(parse_datetime(data['end_date']), self.meeting_instance.end_date)
+        self.assertEqual(data['notes'], self.meeting_instance.notes)
+
+    def test_deserialization(self):
+        data = {
+            'title': 'New Meeting',
+            'start_date': self.meeting_instance.start_date,
+            'end_date': self.meeting_instance.end_date,
+            'notes': 'New Meeting Notes'
         }
-        meeting_data = {
-            'scheduler': scheduler_data,
-            'attendee': attendee_data,
-            'start_date': "2022-01-01",
-            'end_date': "2022-01-02"
-        }
-        serializer = MeetingSerializer(data=meeting_data)
-        print(serializer.is_valid())
-        print(serializer.errors)
+        serializer = MeetingSerializer(data=data)
         self.assertTrue(serializer.is_valid())
-        meeting = serializer.save()
-        self.assertEqual(str(meeting.scheduler), "George Washington")
-        self.assertEqual(str(meeting.attendee), "Abraham Lincoln")
-        self.assertEqual(meeting.title, "George Washington / Abraham Lincoln / 2022-01-01 00:00:00+00:00")
+        new_meeting = serializer.save()
+        self.assertEqual(new_meeting.title, data['title'])
+        self.assertEqual(new_meeting.start_date, data['start_date'])
+        self.assertEqual(new_meeting.end_date, data['end_date'])
+        self.assertEqual(new_meeting.notes, data['notes'])
 
-# Add more test cases for other serializers
+    def test_invalid_deserialization(self):
+        invalid_data = {
+            'title': '',
+        }
+        serializer = MeetingSerializer(data=invalid_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('title', serializer.errors)
 
-class ActionItemSerializerTestCase(TestCase):
-    pass
-
-class QuestionSerializerTestCase(TestCase):
-    pass
-
-class QuestionAnswerSerializerTestCase(TestCase):
-    pass
