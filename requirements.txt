@@ -10,6 +10,7 @@ dj-rest-auth
 django-allauth
 flower
 redis
+django-celery-beat
 requests
 factory_boy
 coverage

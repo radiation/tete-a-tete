@@ -4,4 +4,4 @@ set -o errexit
 set -o nounset
 
 rm -f './celerybeat.pid'
-celery -A agendable beat -l INFO
+celery -A agendable beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
