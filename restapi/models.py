@@ -1,12 +1,16 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import IntegrityError, models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from enum import IntEnum
 
 from .managers import CustomUserManager
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DaysOfWeek(IntEnum):
     SUNDAY = 0
@@ -35,6 +39,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    def save(self, *args, **kwargs):
+        try:
+            super().save(*args, **kwargs)
+        except IntegrityError as e:
+            logger.exception(f'IntegrityError while saving CustomUser: {e}', exc_info=False)
+
 class UserPreferences(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     timezone = models.CharField(max_length=50, default="UTC")
@@ -46,7 +56,7 @@ class EventTime(models.Model):
     day = models.IntegerField(choices=[(tag, tag.value) for tag in DaysOfWeek])
     time = models.TimeField()
 
-    unique_together = ("day", "time")
+    unique_together = [["day", "time"]]
 
 class UserDigest(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -60,6 +70,13 @@ class Task(models.Model):
     completed = models.BooleanField(default=False)
     completed_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            logger.debug(f"Creating new task: {str(self)}")
+        else:
+            logger.debug(f"Updating task {str(self)}")
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.assignee}: {self.title}'
@@ -75,12 +92,17 @@ class Meeting(models.Model):
     def clean(self):
         # Check that end_date is after start_date
         if self.end_date and self.start_date and self.end_date < self.start_date:
+            logger.info(f"{str(self)}: End date {str(self.end_date)} must be after start date {str(self.start_date)}")
             raise ValidationError("End date must be after start date")
 
         super().clean()
 
     def save(self, *args, **kwargs):
         self.clean()
+        if self.pk is None:
+            logger.debug(f"Creating new meeting: {self.title}")
+        else:
+            logger.debug(f"Updating meeting {self.pk}: {self.title}")
         super().save(*args, **kwargs)
 
     def __str__(self):
