@@ -12,15 +12,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class DaysOfWeek(IntEnum):
-    SUNDAY = 0
-    MONDAY = 1
-    TUESDAY = 2
-    WEDNESDAY = 3
-    THURSDAY = 4
-    FRIDAY = 5
-    SATURDAY = 6
-
+WEEKDAY_CHOICES = [
+    (0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), 
+    (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')
+]
+MONTH_WEEK_CHOICES = [
+    (1, 'First'), (2, 'Second'), (3, 'Third'), (4, 'Fourth'), (5, 'Last')
+]
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_("email address"), unique=True)
@@ -48,15 +46,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class UserPreferences(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     timezone = models.CharField(max_length=50, default="UTC")
-    working_days = models.IntegerField(models.IntegerField(choices=[(tag, tag.value) for tag in DaysOfWeek]))
+    working_days = models.IntegerField(models.IntegerField(choices=[(tag, tag.value) for tag in WEEKDAY_CHOICES]))
     working_hours_start = models.TimeField(default="09:00:00")
     working_hours_end = models.TimeField(default="17:00:00")
 
 class EventTime(models.Model):
-    day = models.IntegerField(choices=[(tag, tag.value) for tag in DaysOfWeek])
+    day = models.IntegerField(choices=[(tag, tag.value) for tag in WEEKDAY_CHOICES])
     time = models.TimeField()
 
-    unique_together = [["day", "time"]]
+    class Meta:
+        unique_together = [["day", "time"]]
+        ordering = [["day", "time"]]
 
 class UserDigest(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -80,13 +80,16 @@ class Task(models.Model):
 
     def __str__(self):
         return f'{self.assignee}: {self.title}'
-    
-class Meeting(models.Model):    
+
+class Meeting(models.Model):
     title = models.CharField(default="", max_length=100)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     notes = models.TextField(default="")
     num_reschedules = models.IntegerField(default=0)
+    recurring = models.BooleanField(default=False)
+    recurring_interval = models.IntegerField(default=0)
+    next_meeting = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
 
     def clean(self):
@@ -108,6 +111,24 @@ class Meeting(models.Model):
     def __str__(self):
         return f'{self.title}'
 
+class MeetingRecurrence(models.Model):
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name='recurrences')
+    frequency = models.CharField(max_length=20, choices=[('daily', 'Daily'), ('weekly', 'Weekly'), ('monthly', 'Monthly'), ('custom', 'Custom')])
+    interval = models.IntegerField(default=1)  # Used for daily, weekly, and monthly frequencies
+    end_recurrence = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    week_day = models.IntegerField(choices=WEEKDAY_CHOICES, null=True, blank=True)
+    month_week = models.IntegerField(choices=MONTH_WEEK_CHOICES, null=True, blank=True)
+
+    def get_next_occurrence(self):
+        # Logic to calculate the next occurrence date based on frequency, interval, and current date
+        pass
+
+class MeetingLink(models.Model):
+    previous_meeting = models.ForeignKey(Meeting, unique=True, related_name='previous_links', on_delete=models.CASCADE)
+    next_meeting = models.ForeignKey(Meeting, unique=True, related_name='next_links', on_delete=models.CASCADE)
+
 class MeetingAttendee(models.Model):
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
@@ -120,5 +141,6 @@ class MeetingTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
 
-    unique_together = [["meeting", "task"]]
+    class Meta:
+        unique_together = [["meeting", "task"]]
 

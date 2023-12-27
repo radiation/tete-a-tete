@@ -1,5 +1,6 @@
 from celery import Celery, shared_task
 from celery.schedules import crontab
+from celery.utils.log import get_task_logger
 from django import test
 from django.apps import apps
 
@@ -40,3 +41,7 @@ def create_or_update_record(validated_data, model_name, create=True):
     else:
         logger.error(f"Serializer errors: {serializer.errors}")
         return serializer.errors
+
+@shared_task()
+def task_test_logger():
+    logger.info('test')
