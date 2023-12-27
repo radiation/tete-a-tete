@@ -5,6 +5,10 @@ from django.apps import apps
 
 from .serializers import *
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 serializers_dict = {
     'User': UserSerializer,
     'UserPreferences': UserPreferencesSerializer,
@@ -19,7 +23,7 @@ app = Celery()
 
 @shared_task
 def create_or_update_record(validated_data, model_name, create=True):
-    print(f"Creating/Updating record for model {model_name} with data: {validated_data}")
+    logger.debug(f"Creating/Updating record for model {model_name} with data: {validated_data}")
 
     Model = apps.get_model('restapi', model_name)
     SerializerClass = serializers_dict[model_name]
@@ -34,5 +38,5 @@ def create_or_update_record(validated_data, model_name, create=True):
         serializer.save()
         return serializer.data
     else:
-        print(f"Serializer errors: {serializer.errors}")
+        logger.error(f"Serializer errors: {serializer.errors}")
         return serializer.errors

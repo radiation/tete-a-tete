@@ -10,6 +10,10 @@ from .models import *
 from .serializers import *
 from .tasks import *
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def email_confirm_redirect(request, key):
     return HttpResponseRedirect(f"{settings.EMAIL_CONFIRM_REDIRECT_BASE_URL}{key}/")
@@ -32,21 +36,25 @@ Base viewset class that automatically creates or updates records asynchronously
 '''
 class AsyncModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
-        if serializer.is_valid():
-            model_name = self.get_serializer_class().Meta.model.__name__
-            data_dict = dict(serializer.validated_data)
-
-            for key in relations_dict:
-                if key in data_dict:
-                    if isinstance(data_dict[key], relations_dict[key]):
-                        data_dict[key] = data_dict[key].id
-
-            create_or_update_record.delay(data_dict, model_name, create=True)
+        logger.debug(f"Performing create for serializer {serializer}")
+        if serializer.is_valid(raise_exception=True):
+            self.dispatch_task(serializer, create=True)
 
     def perform_update(self, serializer):
-        if serializer.is_valid():
-            model_name = self.get_serializer_class().Meta.model.__name__
-            create_or_update_record.delay(serializer.validated_data, model_name, create=False)
+        logger.debug(f"Performing update for serializer {serializer}")
+        if serializer.is_valid(raise_exception=True):
+            self.dispatch_task(serializer, create=False)
+
+    def dispatch_task(self, serializer, create):
+        model_name = self.get_serializer_class().Meta.model.__name__
+        data_dict = dict(serializer.validated_data)
+
+        for key in relations_dict:
+            if key in data_dict and isinstance(data_dict[key], relations_dict[key]):
+                logger.debug(f"Found related model {key} in data_dict")
+                data_dict[key] = data_dict[key].id
+
+        create_or_update_record.delay(data_dict, model_name, create=create)
 
 class UserViewSet(AsyncModelViewSet):
     queryset = CustomUser.objects.all()
