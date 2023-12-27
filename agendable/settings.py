@@ -117,6 +117,49 @@ REST_FRAMEWORK = {
     ]
 }
 
+LOGGING = {
+    'version': 1,  # Indicates dictConfig format
+    'disable_existing_loggers': False,  # Do not disable existing loggers
+
+    # How to format the output
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+        },
+    },
+
+    # Filter settings
+    'filters': {
+        # Add filters here if needed
+    },
+
+    # Handler settings
+    'handlers': {
+        'console': {
+            'level': os.environ.get('LOG_LEVEL','INFO'),  # Log level for the console
+            'class': 'logging.StreamHandler',  # Use the StreamHandler for logging to the console
+            'formatter': 'standard',  # Use the standard formatter
+        },
+        # You can add file handler here if needed
+    },
+
+    # Logger settings
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.environ.get('LOG_LEVEL','INFO'),  # Log level for Django
+            'propagate': True,  # Propagate logs to parent loggers
+        },
+        'your_application_name': {
+            'handlers': ['console'],
+            'level': os.environ.get('LOG_LEVEL','INFO'),  # Adjust the level to your needs
+            'propagate': False,
+        },
+        # Add other loggers here if needed
+    },
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -153,7 +196,7 @@ EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", True)
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_VERIFICATION = os.environ.get("ACCOUNT_EMAIL_VERIFICATION","none")
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
 EMAIL_CONFIRM_REDIRECT_BASE_URL = "http://localhost:8000/email/confirm/"
