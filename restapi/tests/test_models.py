@@ -44,21 +44,18 @@ class MeetingModelTest(TestCase):
         self.assertEqual(self.meeting.num_reschedules, 0)
 
     def test_get_next_occurrence(self):
-        # Test get_next_occurrence on the existing meeting
+        # Mock the asynchronous task to create a new meeting
         with patch('restapi.tasks.create_or_update_record.delay') as mock_task:
-            next_meeting = self.meeting.get_next_occurrence()
-            self.assertIsNone(next_meeting, "Expected no next meeting yet")
-
-            # Test get_next_occurrence again
             mock_task.side_effect = lambda meeting_data, model_name, create: (
                 Meeting.objects.create(**meeting_data) if create else None
             )
 
-            # Wait up to 5 seconds for the asynchronous task to complete
-            i=0
-            while not next_meeting and i < 5:
-                next_meeting = self.meeting.get_next_occurrence()
-                sleep(1)
+            # Test get_next_occurrence on the existing meeting
+            next_meeting = self.meeting.get_next_occurrence()
+            self.assertIsNone(next_meeting, "Expected no next meeting yet")
+
+            # Test get_next_occurrence again
+            next_meeting = self.meeting.get_next_occurrence()
         
         self.assertIsNotNone(next_meeting, "Expected to find the next meeting")
         self.assertEqual(next_meeting.recurrence, self.meeting.recurrence)
