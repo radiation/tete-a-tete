@@ -1,7 +1,9 @@
 import datetime
-from django.test import TestCase
-from restapi.factories import CustomUserFactory, MeetingFactory, MeetingAttendeeFactory, MeetingTaskFactory, TaskFactory
-from restapi.models import CustomUser, Meeting, Task
+from time import sleep
+from django.test import TestCase, override_settings
+from restapi.factories import *
+from restapi.models import *
+from unittest.mock import patch
 
 class UserModelTest(TestCase):
 
@@ -40,6 +42,42 @@ class MeetingModelTest(TestCase):
         self.assertTrue(isinstance(self.meeting.notes, str))
         self.assertTrue(len(self.meeting.notes) > 0)
         self.assertEqual(self.meeting.num_reschedules, 0)
+
+    def test_get_next_occurrence(self):
+        # Test get_next_occurrence on the existing meeting
+        with patch('restapi.tasks.create_or_update_record.delay') as mock_task:
+            next_meeting = self.meeting.get_next_occurrence()
+            self.assertIsNone(next_meeting, "Expected no next meeting yet")
+
+            # Test get_next_occurrence again
+            mock_task.side_effect = lambda meeting_data, model_name, create: (
+                Meeting.objects.create(**meeting_data) if create else None
+            )
+
+            # Wait up to 5 seconds for the asynchronous task to complete
+            i=0
+            while not next_meeting and i < 5:
+                next_meeting = self.meeting.get_next_occurrence()
+                sleep(1)
+        
+        self.assertIsNotNone(next_meeting, "Expected to find the next meeting")
+        self.assertEqual(next_meeting.recurrence, self.meeting.recurrence)
+        self.assertGreater(next_meeting.start_date, self.meeting.start_date)
+
+class MeetingRecurrenceModelTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.meeting_recurrence = MeetingRecurrenceFactory()
+        cls.weekday_values = [choice[0] for choice in WEEKDAY_CHOICES]
+        cls.month_week_values = [choice[0] for choice in MONTH_WEEK_CHOICES]
+        cls.frequency_values = [choice[0] for choice in FREQUENCY_CHOICES]
+
+    def test_meeting_recurrence(self):
+        self.assertIn(self.meeting_recurrence.week_day, self.weekday_values, "Weekday is not in WEEKDAY_CHOICES")
+        self.assertIn(self.meeting_recurrence.month_week,self.month_week_values, "Month week is not in MONTH_WEEK_CHOICES")
+        self.assertIn(self.meeting_recurrence.frequency, self.frequency_values, "Frequency is not in FREQUENCY_CHOICES")
+        self.assertTrue(isinstance(self.meeting_recurrence.interval, int))
 
 class MeetingAttendeeModelTest(TestCase):
 
