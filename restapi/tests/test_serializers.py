@@ -57,7 +57,7 @@ class MeetingSerializerTest(TestCase):
 
     def test_contains_expected_fields(self):
         data = self.serializer.data
-        self.assertEqual(set(data.keys()), set(['id', 'title', 'start_date', 'end_date', 'notes', 'num_reschedules', 'created_at']))
+        self.assertEqual(set(data.keys()), set(['id', 'title', 'recurrence', 'duration', 'start_date', 'end_date', 'notes', 'num_reschedules', 'created_at']))
 
     def test_serialization(self):
         data = self.serializer.data
@@ -191,8 +191,8 @@ class MeetingTaskSerializerTest(TestCase):
 
     def test_deserialization(self):
         data = {
-            'meeting': self.meeting_task_instance.meeting.id,
-            'task': self.meeting_task_instance.task.id,
+            'meeting': MeetingFactory().id,
+            'task': TaskFactory().id,
         }
         serializer = MeetingTaskSerializer(data=data)
         self.assertTrue(serializer.is_valid())

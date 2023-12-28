@@ -67,6 +67,31 @@ class MeetingViewSet(AsyncModelViewSet):
     def get_serializer_class(self):
         return self.serializer_class
 
+    # Returns a MeetingRecurrence object
+    @action(detail=False, methods=['GET'])
+    def get_meeting_recurrence(self, request):
+        meeting_id = request.query_params.get('meeting_id')
+        recurrence = MeetingRecurrence.objects.get(meeting__id=meeting_id)
+        return Response(recurrence)
+
+    # Returns a Meeting object  
+    @action(detail=False, methods=['GET'])
+    def get_next_occurrence(self, request):
+        meeting_id = request.query_params.get('meeting_id')
+        meeting = Meeting.objects.get(pk=meeting_id)
+        next_occurrence = meeting.get_next_occurrence()
+        return Response(next_occurrence)
+
+    @action(detail=False, methods=['POST'])
+    def complete(self, request):
+        meeting_id = request.data.get('meeting_id')
+        meeting = Meeting.objects.get(pk=meeting_id)
+        if meeting.recurrence:
+            meeting_recurrence = MeetingRecurrence.objects.get(pk=meeting.recurrence.id)
+        meeting.completed = True
+        meeting.save()
+        return Response(status=status.HTTP_200_OK)
+
 class TaskViewSet(AsyncModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
