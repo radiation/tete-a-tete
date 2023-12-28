@@ -21,7 +21,7 @@ MONTH_WEEK_CHOICES = [
     (1, 'First'), (2, 'Second'), (3, 'Third'), (4, 'Fourth'), (5, 'Last')
 ]
 FREQUENCY_CHOICES = [
-    ('daily', 'Daily'), ('weekly', 'Weekly'), ('monthly', 'Monthly'), ('custom', 'Custom')
+    ('daily', 'Daily'), ('weekly', 'Weekly'), ('monthly', 'Monthly')
 ]
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -80,7 +80,7 @@ class Meeting(models.Model):
         from .tasks import create_or_update_record # Deferred import to avoid circular dependency
         next_meeting = Meeting.objects.filter(
             recurrence=self.recurrence,
-            start_date__gt=timezone.now()
+            start_date__gt=self.start_date
         ).order_by('start_date').first()
 
         if next_meeting:
@@ -90,7 +90,7 @@ class Meeting(models.Model):
             if next_occurrence_time and (not self.recurrence.end_recurrence or next_occurrence_time <= self.recurrence.end_recurrence):
                 duration = self.end_date - self.start_date
                 meeting_data = {
-                    'recurrence': self.recurrence.id,
+                    'recurrence': self.recurrence,
                     'title': self.title,
                     'start_date': next_occurrence_time,
                     'end_date': next_occurrence_time + duration,
