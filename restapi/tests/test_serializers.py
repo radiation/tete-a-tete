@@ -3,7 +3,10 @@ from django.utils.dateparse import parse_datetime
 from django.utils.timezone import is_aware, make_aware
 from restapi.models import *
 from restapi.serializers import *
-from restapi.factories import CustomUserFactory, MeetingFactory, MeetingAttendeeFactory, MeetingTaskFactory, TaskFactory
+from restapi.factories import (
+    CustomUserFactory, MeetingFactory, MeetingRecurrenceFactory, 
+    MeetingAttendeeFactory, MeetingTaskFactory, TaskFactory
+)
 
 class UserSerializerTest(TestCase):
 
@@ -57,7 +60,10 @@ class MeetingSerializerTest(TestCase):
 
     def test_contains_expected_fields(self):
         data = self.serializer.data
-        self.assertEqual(set(data.keys()), set(['id', 'title', 'recurrence', 'duration', 'start_date', 'end_date', 'notes', 'num_reschedules', 'created_at']))
+        self.assertEqual(set(data.keys()), 
+                         set(['id', 'title', 'recurrence', 'duration', 
+                              'start_date', 'end_date', 'notes', 
+                              'num_reschedules', 'created_at']))
 
     def test_serialization(self):
         data = self.serializer.data
@@ -88,6 +94,44 @@ class MeetingSerializerTest(TestCase):
         serializer = MeetingSerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('title', serializer.errors)
+
+class MeetingRecurrenceSerializerTest(TestCase):
+    
+        @classmethod
+        def setUpTestData(self):
+            self.meeting_recurrence_instance = MeetingRecurrenceFactory()
+            self.serializer = MeetingRecurrenceSerializer(instance=self.meeting_recurrence_instance)
+    
+        def test_contains_expected_fields(self):
+            data = self.serializer.data
+            self.assertEqual(set(data.keys()), set(['id', 'frequency', 'week_day', 'month_week', 'interval', 'end_recurrence', 'created_at']))
+    
+        def test_serialization(self):
+            data = self.serializer.data
+            self.assertEqual(data['frequency'], self.meeting_recurrence_instance.frequency)
+            self.assertEqual(data['week_day'], self.meeting_recurrence_instance.week_day)
+            self.assertEqual(data['month_week'], self.meeting_recurrence_instance.month_week)
+            self.assertEqual(data['interval'], self.meeting_recurrence_instance.interval)
+    
+        def test_deserialization(self):
+            data = {
+                'frequency': 'daily',
+                'week_day': self.meeting_recurrence_instance.week_day,
+                'month_week': self.meeting_recurrence_instance.month_week,
+                'interval': self.meeting_recurrence_instance.interval,
+                'end_recurrence': self.meeting_recurrence_instance.end_recurrence,
+            }
+            serializer = MeetingRecurrenceSerializer(data=data)
+            self.assertTrue(serializer.is_valid())
+            new_meeting_recurrence = serializer.save()
+    
+        def test_invalid_deserialization(self):
+            invalid_data = {
+                'frequency': '',
+            }
+            serializer = MeetingRecurrenceSerializer(data=invalid_data)
+            self.assertFalse(serializer.is_valid())
+            self.assertIn('frequency', serializer.errors)
 
 class MeetingAttendeeSerializerTest(TestCase):
 

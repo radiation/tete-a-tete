@@ -21,9 +21,7 @@ def email_confirm_redirect(request, key):
 def password_reset_confirm_redirect(request, uidb64, token):
     return HttpResponseRedirect(f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/")
 
-'''
-For looking up related models
-'''
+#For looking up related models
 relations_dict = {
     'assignee': CustomUser,
     'meeting': Meeting,
@@ -82,15 +80,21 @@ class MeetingViewSet(AsyncModelViewSet):
         next_occurrence = meeting.get_next_occurrence()
         return Response(next_occurrence)
 
+    # Move tasks and agenda items to the next occurrence
     @action(detail=False, methods=['POST'])
     def complete(self, request):
         meeting_id = request.data.get('meeting_id')
         meeting = Meeting.objects.get(pk=meeting_id)
-        if meeting.recurrence:
-            meeting_recurrence = MeetingRecurrence.objects.get(pk=meeting.recurrence.id)
-        meeting.completed = True
-        meeting.save()
+        next_occurrence = meeting.get_next_occurrence()
+        if next_occurrence:
+            for meeting_task in MeetingTask.objects.filter(meeting__id=meeting_id):
+                meeting_task.meeting = next_occurrence
+                meeting_task.save()
         return Response(status=status.HTTP_200_OK)
+
+class MeetingRecurrenceViewSet(AsyncModelViewSet):
+    queryset = MeetingRecurrence.objects.all()
+    serializer_class = MeetingRecurrenceSerializer
 
 class TaskViewSet(AsyncModelViewSet):
     queryset = Task.objects.all()

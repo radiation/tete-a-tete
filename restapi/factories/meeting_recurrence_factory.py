@@ -1,5 +1,3 @@
-import datetime
-from django.utils import timezone
 import factory
 from factory.fuzzy import FuzzyInteger
 from restapi.models import MeetingRecurrence, WEEKDAY_CHOICES, MONTH_WEEK_CHOICES, FREQUENCY_CHOICES

@@ -35,6 +35,17 @@ class MeetingSerializer(serializers.ModelSerializer):
         model = Meeting
         fields = '__all__'
 
+    def to_representation(self, instance):
+        ret = super(MeetingSerializer, self).to_representation(instance)
+        recurrence_id = instance['recurrence'] if isinstance(instance, dict) else instance.recurrence
+        ret['recurrence'] = MeetingRecurrenceSerializer(recurrence_id).data
+        return ret
+
+class MeetingRecurrenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MeetingRecurrence
+        fields = '__all__'
+
 class TaskSerializer(serializers.ModelSerializer):
     assignee = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
     

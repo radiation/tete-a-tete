@@ -1,6 +1,6 @@
 import datetime
 from time import sleep
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from restapi.factories import *
 from restapi.models import *
 from unittest.mock import patch

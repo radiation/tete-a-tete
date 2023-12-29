@@ -18,6 +18,7 @@ from .views import *
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'meetings', MeetingViewSet)
+router.register(r'meeting_recurrences', MeetingRecurrenceViewSet)
 router.register(r'tasks', TaskViewSet)
 router.register(r'user_preferences', UserPreferencesViewSet)
 router.register(r'event_times', EventTimeViewSet)
