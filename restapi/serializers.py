@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import *
+from .models import (
+    CustomUser, UserPreferences, EventTime, 
+    Meeting, MeetingRecurrence, MeetingAttendee, 
+    Task, MeetingTask, UserDigest)
 
 import logging
 
