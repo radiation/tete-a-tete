@@ -24,7 +24,7 @@ def password_reset_confirm_redirect(request, uidb64, token):
     return HttpResponseRedirect(f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/")
 
 #For looking up related models
-relations_dict = {
+RELATIONS_MODEL_MAPPING = {
     'assignee': CustomUser,
     'meeting': Meeting,
     'task': Task,
@@ -36,7 +36,7 @@ MODEL_SERIALIZER_MAPPING = {
     MeetingAttendee: MeetingAttendeeSerializer,
 }
 
-#Base viewset class that automatically creates or updates records asynchronously
+#Base viewset class that creates or updates records asynchronously
 class AsyncModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         logger.debug(f"Performing create for serializer {serializer}")
@@ -52,8 +52,8 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
         model_name = self.get_serializer_class().Meta.model.__name__
         data_dict = dict(serializer.validated_data)
 
-        for key in relations_dict:
-            if key in data_dict and isinstance(data_dict[key], relations_dict[key]):
+        for key in RELATIONS_MODEL_MAPPING:
+            if key in data_dict and isinstance(data_dict[key], RELATIONS_MODEL_MAPPING[key]):
                 logger.debug(f"Found related model {key} in data_dict")
                 data_dict[key] = data_dict[key].id
 

@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import calendar
 
-from restapi.models import Meeting, MeetingTask
 
 def create_next_meeting(meeting):
     from restapi.tasks import create_or_update_record
@@ -43,6 +42,7 @@ def get_next_occurrence_date(recurrence, source_datetime):
         return None
 
 def complete_meeting(meeting_id):
+    from restapi.models import Meeting, MeetingTask
     meeting = Meeting.objects.get(pk=meeting_id)
     next_occurrence = meeting.get_next_occurrence()
     if next_occurrence:
