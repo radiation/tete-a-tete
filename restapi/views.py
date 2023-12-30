@@ -1,13 +1,15 @@
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import *
 from .serializers import *
+from .services import task_service
 from .tasks import *
 
 import logging
@@ -29,9 +31,12 @@ relations_dict = {
     'user': CustomUser,
 }
 
-'''
-Base viewset class that automatically creates or updates records asynchronously
-'''
+MODEL_SERIALIZER_MAPPING = {
+    Task: TaskSerializer,
+    MeetingAttendee: MeetingAttendeeSerializer,
+}
+
+#Base viewset class that automatically creates or updates records asynchronously
 class AsyncModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         logger.debug(f"Performing create for serializer {serializer}")
@@ -53,6 +58,23 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
                 data_dict[key] = data_dict[key].id
 
         create_or_update_record.delay(data_dict, model_name, create=create)
+
+    def list_by_meeting(self, request, model):
+        meeting_id = request.query_params.get('meeting_id')
+        if not meeting_id:
+            raise Http404("Meeting ID is required")
+
+        meeting = get_object_or_404(Meeting, pk=meeting_id)
+        queryset = model.objects.filter(meeting=meeting)
+        serializer = self.get_serializer_for_model(model, queryset, many=True)
+        return Response(serializer.data)
+
+    def get_serializer_for_model(self, model, *args, **kwargs):
+        serializer_class = MODEL_SERIALIZER_MAPPING.get(model)
+        if serializer_class is None:
+            raise ValueError("No serializer found for the provided model")
+        kwargs['context'] = self.get_serializer_context()
+        return serializer_class(*args, **kwargs)
 
 class UserViewSet(AsyncModelViewSet):
     queryset = CustomUser.objects.all()
@@ -83,13 +105,7 @@ class MeetingViewSet(AsyncModelViewSet):
     # Move tasks and agenda items to the next occurrence
     @action(detail=False, methods=['POST'])
     def complete(self, request):
-        meeting_id = request.data.get('meeting_id')
-        meeting = Meeting.objects.get(pk=meeting_id)
-        next_occurrence = meeting.get_next_occurrence()
-        if next_occurrence:
-            for meeting_task in MeetingTask.objects.filter(meeting__id=meeting_id):
-                meeting_task.meeting = next_occurrence
-                meeting_task.save()
+        meeting_service.complete_meeting(request.data.get('meeting_id'))
         return Response(status=status.HTTP_200_OK)
 
 class MeetingRecurrenceViewSet(AsyncModelViewSet):
@@ -106,16 +122,13 @@ class TaskViewSet(AsyncModelViewSet):
     @action(detail=False, methods=['GET'])
     def list_by_user(self, request):
         user_id = request.query_params.get('user_id')
-        queryset = Task.objects.filter(Q(assignee__id=user_id))
-        serializer = self.get_serializer(queryset, many=True)
+        tasks = Task.objects.filter(assignee__id=user_id)
+        serializer = self.get_serializer(tasks, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['POST'])
     def mark_complete(self, request):
-        action_item_id = request.data.get('action_item_id')
-        action_item = Task.objects.get(pk=action_item_id)
-        action_item.completed = True
-        action_item.save()
+        task_service.mark_task_complete(request.data.get('task_id'))
         return Response(status=status.HTTP_200_OK)
 
 class MeetingTaskViewSet(AsyncModelViewSet):
@@ -126,11 +139,8 @@ class MeetingTaskViewSet(AsyncModelViewSet):
         return self.serializer_class
 
     @action(detail=False, methods=['GET'])
-    def list_by_meeting(self, request):
-        meeting_id = request.query_params.get('meeting_id')
-        queryset = Task.objects.filter(Q(meeting__id=meeting_id))
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    def list_tasks_by_meeting(self, request):
+        return self.list_by_meeting(request, Task)
 
 class MeetingAttendeeViewSet(AsyncModelViewSet):
     queryset = MeetingAttendee.objects.all()
@@ -140,14 +150,11 @@ class MeetingAttendeeViewSet(AsyncModelViewSet):
         return self.serializer_class
 
     @action(detail=False, methods=['GET'])
-    def list_by_meeting(self, request):
-        meeting_id = request.query_params.get('meeting_id')
-        queryset = Task.objects.filter(Q(meeting__id=meeting_id))
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    def list_attendees_by_meeting(self, request):
+        return self.list_by_meeting(request, Task)
 
     @action(detail=False, methods=['GET'])
-    def list_by_user(self, request):
+    def list_meetings_by_user(self, request):
         user_id = request.query_params.get('user_id')
         queryset = Meeting.objects.filter(
             Q(scheduler__id=user_id) | Q(attendee__id=user_id)
