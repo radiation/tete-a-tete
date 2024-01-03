@@ -14,3 +14,5 @@ django-celery-beat
 requests
 factory_boy
 coverage
+channels
+channels-redis

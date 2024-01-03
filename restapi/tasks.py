@@ -4,9 +4,12 @@ from celery.utils.log import get_task_logger
 from django import test
 from django.apps import apps
 
+from restapi.consumers import notify_channel_layer
+
 from .serializers import *
 
 import logging
+from celery.signals import task_postrun
 
 logger = logging.getLogger(__name__)
 
@@ -45,3 +48,11 @@ def create_or_update_record(validated_data, model_name, create=True):
 @shared_task()
 def task_test_logger():
     logger.info('test')
+
+@task_postrun.connect
+def task_postrun_handler(task_id, **kwargs):
+    """
+    When celery task finish, send notification to Django channel_layer, so Django channel would receive
+    the event and then send it to web client
+    """
+    notify_channel_layer(task_id)

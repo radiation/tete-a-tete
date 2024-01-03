@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'restapi',
     'django_celery_beat',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -73,8 +74,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'agendable.wsgi.application'
-
+ASGI_APPLICATION = 'agendable.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
