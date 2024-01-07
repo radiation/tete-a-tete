@@ -1,5 +1,5 @@
 from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import calendar
 
@@ -29,8 +29,7 @@ def get_next_occurrence_date(recurrence, source_datetime):
         next_date = source_datetime + relativedelta(months=recurrence.interval)
         if recurrence.week_day is not None:
             days_in_month = calendar.monthrange(next_date.year, next_date.month)[1]
-            week_day_occurrences = [day for day in range(1, days_in_month + 1) 
-                                    if datetime.date(next_date.year, next_date.month, day).weekday() == recurrence.week_day]
+            week_day_occurrences = [day for day in range(1, days_in_month + 1) if date(next_date.year, next_date.month, day).weekday() == recurrence.week_day]
             if recurrence.month_week <= len(week_day_occurrences):
                 day = week_day_occurrences[recurrence.month_week - 1]
             else:

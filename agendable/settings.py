@@ -1,4 +1,5 @@
 from pathlib import Path
+from kombu import Queue
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -205,6 +206,21 @@ AUTH_USER_MODEL = "restapi.CustomUser"
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "pyamqp://guest@localhost//")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://127.0.0.1:6379/0")
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+CELERY_TASK_CREATE_MISSING_QUEUES = False
+CELERY_TASK_QUEUES = (
+    Queue('default'),
+    Queue('high_priority'),
+    Queue('low_priority'),
+)
+
+def route_task(name, args, kwargs, options, task=None, **kw):
+    if ':' in name:
+        queue, _ = name.split(':')
+        return {'queue': queue}
+    return {'queue': 'default'}
+
+CELERY_TASK_ROUTES = (route_task,)
 
 CHANNEL_LAYERS = {
     'default': {

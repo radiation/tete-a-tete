@@ -25,7 +25,7 @@ serializers_dict = {
 
 app = Celery()
 
-@shared_task
+@shared_task(name='high_priority:create_or_update_record')
 def create_or_update_record(validated_data, model_name, create=True):
     logger.debug(f"Creating/Updating record for model {model_name} with data: {validated_data}")
 
@@ -51,8 +51,4 @@ def task_test_logger():
 
 @task_postrun.connect
 def task_postrun_handler(task_id, **kwargs):
-    """
-    When celery task finish, send notification to Django channel_layer, so Django channel would receive
-    the event and then send it to web client
-    """
     notify_channel_layer(task_id)
