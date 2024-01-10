@@ -3,7 +3,6 @@ from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 import calendar
 
-from restapi.models import Meeting, MeetingTask
 
 def create_next_meeting(meeting):
     from restapi.tasks import create_or_update_record
@@ -55,6 +54,7 @@ def handle_next_meeting_creation(meeting):
         create_next_meeting(meeting)
 
 def generate_reminder(meeting_id, user_id):
+    from restapi.models import Meeting, MeetingTask
     open_tasks = MeetingTask.objects.filter(meeting__id=meeting_id, completed=False)
     meeting = Meeting.objects.get(pk=meeting_id)
     notes = meeting.notes
