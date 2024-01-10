@@ -186,14 +186,15 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
-EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST = os.environ.get("EMAIL_HOST")
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-EMAIL_PORT = os.environ.get("EMAIL_PORT", 465)
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", False)
-EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", True)
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'mailhog')
+EMAIL_PORT = os.environ.get('EMAIL_PORT', 1025)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', False)
 
+# Auth & user model settings
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_REQUIRED = True
@@ -204,6 +205,7 @@ EMAIL_CONFIRM_REDIRECT_BASE_URL = "http://localhost:8000/email/confirm/"
 PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = "http://localhost:8000/password-reset/confirm/"
 AUTH_USER_MODEL = "restapi.CustomUser"
 
+# Celery settings
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "pyamqp://guest@localhost//")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://127.0.0.1:6379/0")
 CELERY_TASK_DEFAULT_QUEUE = 'default'
@@ -222,6 +224,7 @@ def route_task(name, args, kwargs, options, task=None, **kw):
 
 CELERY_TASK_ROUTES = (route_task,)
 
+# Channels
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -231,6 +234,7 @@ CHANNEL_LAYERS = {
     },
 }
 
+# AllAuth settings
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "APP": {
