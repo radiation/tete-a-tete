@@ -3,6 +3,7 @@ from celery.schedules import crontab
 from celery.utils.log import get_task_logger
 from django import test
 from django.apps import apps
+from django.core.mail import send_mail
 
 from restapi.consumers import notify_channel_layer
 
@@ -24,6 +25,17 @@ serializers_dict = {
 }
 
 app = Celery()
+
+@shared_task
+def send_periodic_email():
+    # Replace with your email sending logic
+    send_mail(
+        'Your Email Subject',
+        'Email message body.',
+        'from@example.com',
+        ['to@example.com'],
+        fail_silently=False,
+    )
 
 @shared_task(name='high_priority:create_or_update_record')
 def create_or_update_record(validated_data, model_name, create=True):
