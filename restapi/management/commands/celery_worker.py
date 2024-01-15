@@ -12,8 +12,8 @@ def restart_celery():
     if sys.platform == "win32":
         cmd = "taskkill /f /t /im celery.exe"
 
-    subprocess.call(shlex.split(cmd))
-    subprocess.call(shlex.split(f"{celery_worker_cmd} --loglevel=info high_priority,low_priority,default"))
+    subprocess.run(shlex.split(cmd))
+    subprocess.run(shlex.split(f"{celery_worker_cmd} --loglevel=info -Q high_priority,low_priority,default"))
 
 
 class Command(BaseCommand):
