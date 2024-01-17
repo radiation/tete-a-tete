@@ -26,6 +26,7 @@ router.register(r'meeting_tasks', MeetingTaskViewSet)
 router.register(r'meeting_attendees', MeetingAttendeeViewSet)
 
 urlpatterns = [
+    path('health/', health, name='health'),
     path("register/", RegisterView.as_view(), name="rest_register"),
     path("login/", LoginView.as_view(), name="rest_login"),
     path("logout/", LogoutView.as_view(), name="rest_logout"),

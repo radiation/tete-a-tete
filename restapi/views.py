@@ -1,5 +1,7 @@
+from django.db import connections
 from django.db.models import Q
-from django.http import Http404, HttpResponseRedirect
+from django.db.utils import OperationalError
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -35,6 +37,13 @@ MODEL_SERIALIZER_MAPPING = {
     Task: TaskSerializer,
     MeetingAttendee: MeetingAttendeeSerializer,
 }
+
+def health(request):
+    try:
+        connections['default'].cursor()
+    except OperationalError:
+        return HttpResponse("Database unavailable", status=503)
+    return HttpResponse("OK")
 
 #Base viewset class that creates or updates records asynchronously
 class AsyncModelViewSet(viewsets.ModelViewSet):
