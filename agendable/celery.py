@@ -12,6 +12,13 @@ app = Celery('agendable')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
+app.conf.beat_schedule = {
+    'send-meeting-reminders': {
+        'task': 'restapi.tasks.send_meeting_reminders',
+        'schedule': crontab(minute='*/5'),
+    },
+}
+
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 @app.task(bind=True, ignore_result=True)

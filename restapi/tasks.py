@@ -1,13 +1,15 @@
 from celery import Celery, shared_task
 from celery.schedules import crontab
-from celery.utils.log import get_task_logger
 from django import test
 from django.apps import apps
 from django.core.mail import send_mail
+from django.utils import timezone
+from datetime import timedelta
 
 from restapi.consumers import notify_channel_layer
 
 from .serializers import *
+from .services.user_service import UserService
 
 import logging
 from celery.signals import task_postrun
@@ -27,15 +29,28 @@ serializers_dict = {
 app = Celery()
 
 @shared_task
-def send_periodic_email():
-    # Replace with your email sending logic
-    send_mail(
-        'Your Email Subject',
-        'Email message body.',
-        'from@example.com',
-        ['to@example.com'],
-        fail_silently=False,
-    )
+def send_email_to_user(subject, message, from_email, user_email):
+    send_mail(subject, message, from_email, [user_email])
+
+@shared_task
+def send_meeting_reminders():
+    time_threshold = timezone.now() + timedelta(hours=24)
+    upcoming_meetings = Meeting.objects.filter(start_date__lte=time_threshold).prefetch_related('meetingattendee_set__user')
+    logger.debug(f"Found {len(upcoming_meetings)} meetings to send reminders for.")
+
+    for meeting in upcoming_meetings:
+        logger.debug(f"Sending reminders for meeting {meeting.id}")
+        for attendee in meeting.meetingattendee_set.all():
+            user = attendee.user
+            print(f"Sending reminder to user {user.email}")
+
+            user_service = UserService(user)
+            user_service.send_email(
+                subject="Meeting Reminder",
+                message=f"Reminder: You have a meeting titled '{meeting.title}' scheduled at {meeting.start_date}.",
+                from_email="noreply@example.com"
+            )
+
 
 @shared_task(name='high_priority:create_or_update_record')
 def create_or_update_record(validated_data, model_name, create=True):
