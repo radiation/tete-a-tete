@@ -14,7 +14,7 @@ services:
     env_file:
       - ./.env/dev
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8000/restapi/health/"]
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/api/health/"]
       interval: 30s
       timeout: 30s
       start_period: 5s
@@ -51,8 +51,8 @@ services:
     env_file:
       - ./.env/dev
     depends_on:
-      - redis
-      - db
+      web:
+        condition: service_healthy
   celery_beat:
     build:
       context: .
@@ -64,9 +64,8 @@ services:
     env_file:
       - ./.env/dev
     depends_on:
-      - redis
-      - db
-      - web
+      web:
+        condition: service_healthy
   flower:
     build:
       context: .
