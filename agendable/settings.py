@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'restapi',
     'django_celery_beat',
     'channels',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
