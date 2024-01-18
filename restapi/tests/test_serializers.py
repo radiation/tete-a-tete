@@ -85,7 +85,7 @@ class MeetingSerializerTest(TestCase):
                     "end_date",
                     "notes",
                     "num_reschedules",
-                    "reminder_sent",
+                    'reminder_sent',
                     "created_at",
                 ]
             ),
