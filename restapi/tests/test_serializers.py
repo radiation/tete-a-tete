@@ -37,7 +37,7 @@ class UserSerializerTest(TestCase):
         }
         serializer = UserSerializer(data=user_data)
         if not serializer.is_valid():
-            print(serializer.errors)
+            logger.error(serializer.errors)
         self.assertTrue(serializer.is_valid())
 
         user = serializer.save()

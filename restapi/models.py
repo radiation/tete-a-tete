@@ -63,6 +63,7 @@ class Meeting(models.Model):
     duration = models.IntegerField(default=30)
     notes = models.TextField(default="")
     num_reschedules = models.IntegerField(default=0)
+    reminder_sent = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
 
     def get_next_occurrence(self):

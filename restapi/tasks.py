@@ -42,7 +42,7 @@ def send_meeting_reminders():
         logger.debug(f"Sending reminders for meeting {meeting.id}")
         for attendee in meeting.meetingattendee_set.all():
             user = attendee.user
-            print(f"Sending reminder to user {user.email}")
+            logger.debug(f"Sending reminder to user {user.email}")
 
             user_service = UserService(user)
             user_service.send_email(
@@ -50,6 +50,9 @@ def send_meeting_reminders():
                 message=f"Reminder: You have a meeting titled '{meeting.title}' scheduled at {meeting.start_date}.",
                 from_email="noreply@example.com"
             )
+
+        meeting.reminders_sent = True
+        meeting.save()
 
 
 @shared_task(name='high_priority:create_or_update_record')

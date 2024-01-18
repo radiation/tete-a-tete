@@ -5,6 +5,9 @@ import subprocess
 from django.core.management.base import BaseCommand
 from django.utils import autoreload
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def restart_celery():
     celery_worker_cmd = "celery -A agendable worker"
@@ -19,5 +22,5 @@ def restart_celery():
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        print('Starting celery worker with autoreload...')
+        logger.info('Starting celery worker with autoreload...')
         autoreload.run_with_reloader(restart_celery)
