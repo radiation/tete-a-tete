@@ -14,13 +14,13 @@ def create_next_meeting(meeting):
     ):
         duration = meeting.end_date - meeting.start_date
         meeting_data = {
-            "recurrence": meeting.recurrence,
-            "title": meeting.title,
-            "start_date": next_occurrence_time,
-            "end_date": next_occurrence_time + duration,
-            "notes": meeting.notes,
-            "num_reschedules": meeting.num_reschedules,
-            "created_at": timezone.now(),
+            'recurrence': meeting.recurrence.id,
+            'title': meeting.title,
+            'start_date': next_occurrence_time,
+            'end_date': next_occurrence_time + duration,
+            'notes': meeting.notes,
+            'num_reschedules': meeting.num_reschedules,
+            'created_at': timezone.now()
         }
         create_or_update_record.delay(meeting_data, "Meeting", create=True)
 

@@ -114,12 +114,17 @@ class MeetingViewSet(AsyncModelViewSet):
         serializer = MeetingRecurrenceSerializer(recurrence)
         return Response(serializer.data)
 
-    # Returns a Meeting object
-    @action(detail=False, methods=["GET"])
+    # Returns a serialized Meeting object  
+    @action(detail=False, methods=['GET'])
     def get_next_occurrence(self, request):
         meeting_id = request.query_params.get("meeting_id")
         meeting = Meeting.objects.get(pk=meeting_id)
-        serializer = MeetingSerializer(meeting.get_next_occurrence())
+        next_meeting = meeting.get_next_occurrence()
+
+        if next_meeting is None:
+            return Response({'message': 'Next occurrence is being scheduled'}, status=status.HTTP_202_ACCEPTED)
+
+        serializer = MeetingSerializer(next_meeting)
         return Response(serializer.data)
 
     # Move tasks and agenda items to the next occurrence

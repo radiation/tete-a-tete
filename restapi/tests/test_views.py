@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from restapi.factories import *
-from restapi.serializers import MeetingRecurrenceSerializer
+from restapi.serializers import MeetingRecurrenceSerializer, MeetingSerializer
 from unittest.mock import patch, ANY
 from restapi.tasks import create_or_update_record
 
@@ -44,3 +44,26 @@ class MeetingViewSetTestCase(TestCase):
 
         expected_data = MeetingRecurrenceSerializer(self.meeting.recurrence).data
         self.assertEqual(response.data, expected_data)
+
+    '''def test_get_next_occurrence(self):
+        response = self.client.get('/api/meetings/get_next_occurrence/', {'meeting_id': self.meeting.id})
+        if response.status_code == 200:
+            expected_data = MeetingSerializer(self.meeting.get_next_occurrence()).data
+            self.assertEqual(response.data, expected_data)
+        else:
+            self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)'''
+
+    @patch('restapi.tasks.create_or_update_record.delay')
+    def test_create_meeting(self, mock_create_meeting):
+        response = self.client.post('/api/meetings/', self.meeting_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Meeting.objects.count(), 2)  # Assuming one is already created in setUp
+        new_meeting = Meeting.objects.latest('id')
+        self.assertNotEqual(new_meeting.id, self.meeting.id)
+        self.assertEqual(new_meeting.title, self.meeting_data['title'])
+
+    def test_list_meetings(self):
+        # Create some meetings in the test setup
+        response = self.client.get('/api/meetings/')
+        self.assertEqual(response.status_code, 200)
+        # Assert that the response data contains the meetings'''
