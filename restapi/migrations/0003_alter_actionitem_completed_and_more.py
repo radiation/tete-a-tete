@@ -6,18 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('restapi', '0002_alter_customuser_options_and_more'),
+        ("restapi", "0002_alter_customuser_options_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='actionitem',
-            name='completed',
+            model_name="actionitem",
+            name="completed",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='actionitem',
-            name='todo_item',
-            field=models.TextField(default='Check off this box when you are done with this task'),
+            model_name="actionitem",
+            name="todo_item",
+            field=models.TextField(
+                default="Check off this box when you are done with this task"
+            ),
         ),
     ]

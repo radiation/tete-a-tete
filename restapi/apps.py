@@ -3,10 +3,11 @@ from django.apps import AppConfig
 
 
 class RestapiConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'restapi'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "restapi"
 
-'''
+
+"""
     def ready(self):
         if 'test' in sys.argv or 'makemigrations' in sys.argv or 'migrate' in sys.argv:
             return
@@ -24,4 +25,4 @@ class RestapiConfig(AppConfig):
             name='Send email every 5 seconds',
             task='restapi.tasks.send_meeting_reminders',
         )
-'''
+"""

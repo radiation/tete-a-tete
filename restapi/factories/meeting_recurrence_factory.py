@@ -1,7 +1,13 @@
 import factory
 from factory.fuzzy import FuzzyInteger
-from restapi.models import MeetingRecurrence, WEEKDAY_CHOICES, MONTH_WEEK_CHOICES, FREQUENCY_CHOICES
+from restapi.models import (
+    MeetingRecurrence,
+    WEEKDAY_CHOICES,
+    MONTH_WEEK_CHOICES,
+    FREQUENCY_CHOICES,
+)
 import random
+
 
 class MeetingRecurrenceFactory(factory.django.DjangoModelFactory):
     class Meta:

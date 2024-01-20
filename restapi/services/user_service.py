@@ -1,4 +1,3 @@
-
 class UserService:
     def __init__(self, user):
         self.user = user
@@ -10,6 +9,7 @@ class UserService:
 
     def send_email(self, subject, message, from_email):
         from restapi.tasks import send_email_to_user
+
         if self.user.email:
             send_email_to_user.delay(subject, message, from_email, self.user.email)
 

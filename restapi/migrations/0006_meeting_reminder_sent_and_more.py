@@ -6,18 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('restapi', '0005_eventtime_meetingattendee_meetingrecurrence_and_more'),
+        ("restapi", "0005_eventtime_meetingattendee_meetingrecurrence_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='meeting',
-            name='reminder_sent',
+            model_name="meeting",
+            name="reminder_sent",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='meetingrecurrence',
-            name='frequency',
-            field=models.CharField(choices=[('daily', 'Daily'), ('weekly', 'Weekly'), ('monthly', 'Monthly')], max_length=20),
+            model_name="meetingrecurrence",
+            name="frequency",
+            field=models.CharField(
+                choices=[
+                    ("daily", "Daily"),
+                    ("weekly", "Weekly"),
+                    ("monthly", "Monthly"),
+                ],
+                max_length=20,
+            ),
         ),
     ]

@@ -1,1 +1,1 @@
-default_app_config = 'restapi.apps.RestapiConfig'
+default_app_config = "restapi.apps.RestapiConfig"
