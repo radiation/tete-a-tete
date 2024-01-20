@@ -17,25 +17,29 @@ from celery.signals import task_postrun
 logger = logging.getLogger(__name__)
 
 serializers_dict = {
-    'User': UserSerializer,
-    'UserPreferences': UserPreferencesSerializer,
-    'EventTime': EventTimeSerializer,
-    'Meeting': MeetingSerializer,
-    'Task': TaskSerializer,
-    'MeetingTask': MeetingTaskSerializer,
-    'MeetingAttendee': MeetingAttendeeSerializer,
+    "User": UserSerializer,
+    "UserPreferences": UserPreferencesSerializer,
+    "EventTime": EventTimeSerializer,
+    "Meeting": MeetingSerializer,
+    "Task": TaskSerializer,
+    "MeetingTask": MeetingTaskSerializer,
+    "MeetingAttendee": MeetingAttendeeSerializer,
 }
 
 app = Celery()
+
 
 @shared_task
 def send_email_to_user(subject, message, from_email, user_email):
     send_mail(subject, message, from_email, [user_email])
 
+
 @shared_task
 def send_meeting_reminders():
     time_threshold = timezone.now() + timedelta(hours=24)
-    upcoming_meetings = Meeting.objects.filter(start_date__lte=time_threshold).prefetch_related('meetingattendee_set__user')
+    upcoming_meetings = Meeting.objects.filter(
+        start_date__lte=time_threshold
+    ).prefetch_related("meetingattendee_set__user")
     logger.debug(f"Found {len(upcoming_meetings)} meetings to send reminders for.")
 
     for meeting in upcoming_meetings:
@@ -48,24 +52,26 @@ def send_meeting_reminders():
             user_service.send_email(
                 subject="Meeting Reminder",
                 message=f"Reminder: You have a meeting titled '{meeting.title}' scheduled at {meeting.start_date}.",
-                from_email="noreply@example.com"
+                from_email="noreply@example.com",
             )
 
         meeting.reminders_sent = True
         meeting.save()
 
 
-@shared_task(name='high_priority:create_or_update_record')
+@shared_task(name="high_priority:create_or_update_record")
 def create_or_update_record(validated_data, model_name, create=True):
-    logger.debug(f"Creating/Updating record for model {model_name} with data: {validated_data}")
+    logger.debug(
+        f"Creating/Updating record for model {model_name} with data: {validated_data}"
+    )
 
-    Model = apps.get_model('restapi', model_name)
+    Model = apps.get_model("restapi", model_name)
     SerializerClass = serializers_dict[model_name]
 
     if create:
         serializer = SerializerClass(data=validated_data)
     else:
-        instance = Model.objects.get(pk=validated_data['id'])
+        instance = Model.objects.get(pk=validated_data["id"])
         serializer = SerializerClass(instance, data=validated_data)
 
     if serializer.is_valid():
@@ -75,9 +81,11 @@ def create_or_update_record(validated_data, model_name, create=True):
         logger.error(f"Serializer errors: {serializer.errors}")
         return serializer.errors
 
+
 @shared_task()
 def task_test_logger():
-    logger.info('test')
+    logger.info("test")
+
 
 @task_postrun.connect
 def task_postrun_handler(task_id, **kwargs):

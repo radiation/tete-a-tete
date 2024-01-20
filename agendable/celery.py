@@ -10,21 +10,22 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agendable.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "agendable.settings")
 
-app = Celery('agendable')
+app = Celery("agendable")
 
-app.config_from_object('django.conf:settings', namespace='CELERY')
+app.config_from_object("django.conf:settings", namespace="CELERY")
 
 app.conf.beat_schedule = {
-    'send-meeting-reminders': {
-        'task': 'restapi.tasks.send_meeting_reminders',
-        'schedule': crontab(minute='*/5'),
+    "send-meeting-reminders": {
+        "task": "restapi.tasks.send_meeting_reminders",
+        "schedule": crontab(minute="*/5"),
     },
 }
 
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
+
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):
-    logger.debug(f'Request: {self.request!r}')
+    logger.debug(f"Request: {self.request!r}")

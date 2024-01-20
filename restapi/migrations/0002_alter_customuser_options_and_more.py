@@ -7,35 +7,35 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('restapi', '0001_initial'),
+        ("restapi", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='customuser',
+            name="customuser",
             options={},
         ),
         migrations.RemoveField(
-            model_name='customuser',
-            name='first_name',
+            model_name="customuser",
+            name="first_name",
         ),
         migrations.RemoveField(
-            model_name='customuser',
-            name='last_name',
+            model_name="customuser",
+            name="last_name",
         ),
         migrations.AlterField(
-            model_name='customuser',
-            name='date_joined',
+            model_name="customuser",
+            name="date_joined",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AlterField(
-            model_name='customuser',
-            name='is_active',
+            model_name="customuser",
+            name="is_active",
             field=models.BooleanField(default=True),
         ),
         migrations.AlterField(
-            model_name='customuser',
-            name='is_staff',
+            model_name="customuser",
+            name="is_staff",
             field=models.BooleanField(default=False),
         ),
     ]
