@@ -111,15 +111,16 @@ class MeetingViewSet(AsyncModelViewSet):
     def get_meeting_recurrence(self, request):
         meeting_id = request.query_params.get("meeting_id")
         recurrence = MeetingRecurrence.objects.get(meeting__id=meeting_id)
-        return Response(recurrence)
+        serializer = MeetingRecurrenceSerializer(recurrence)
+        return Response(serializer.data)
 
     # Returns a Meeting object
     @action(detail=False, methods=["GET"])
     def get_next_occurrence(self, request):
         meeting_id = request.query_params.get("meeting_id")
         meeting = Meeting.objects.get(pk=meeting_id)
-        next_occurrence = meeting.get_next_occurrence()
-        return Response(next_occurrence)
+        serializer = MeetingSerializer(meeting.get_next_occurrence())
+        return Response(serializer.data)
 
     # Move tasks and agenda items to the next occurrence
     @action(detail=False, methods=["POST"])
