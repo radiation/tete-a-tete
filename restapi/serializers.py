@@ -51,13 +51,17 @@ class MeetingSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def to_representation(self, instance):
-        ret = super(MeetingSerializer, self).to_representation(instance)
-        recurrence_id = (
-            instance["recurrence"]
-            if isinstance(instance, dict)
-            else instance.recurrence
-        )
-        ret["recurrence"] = MeetingRecurrenceSerializer(recurrence_id).data
+        ret = super().to_representation(instance)
+
+        if isinstance(instance, dict) and "recurrence" in instance:
+            recurrence_id = instance["recurrence"]
+            recurrence_instance = MeetingRecurrence.objects.get(id=recurrence_id)
+            ret["recurrence"] = MeetingRecurrenceSerializer(recurrence_instance).data
+        elif hasattr(instance, "recurrence") and instance.recurrence is not None:
+            ret["recurrence"] = MeetingRecurrenceSerializer(instance.recurrence).data
+        else:
+            ret["recurrence"] = None
+
         return ret
 
 
