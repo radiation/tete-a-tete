@@ -114,18 +114,41 @@ class MeetingViewSet(AsyncModelViewSet):
         serializer = MeetingRecurrenceSerializer(recurrence)
         return Response(serializer.data)
 
-    # Returns a serialized Meeting object  
-    @action(detail=False, methods=['GET'])
+    # Returns a serialized Meeting object
+    @action(detail=False, methods=["GET"])
     def get_next_occurrence(self, request):
         meeting_id = request.query_params.get("meeting_id")
         meeting = Meeting.objects.get(pk=meeting_id)
         next_meeting = meeting.get_next_occurrence()
 
         if next_meeting is None:
-            return Response({'message': 'Next occurrence is being scheduled'}, status=status.HTTP_202_ACCEPTED)
+            return Response(
+                {"message": "Next occurrence is being scheduled"},
+                status=status.HTTP_202_ACCEPTED,
+            )
 
         serializer = MeetingSerializer(next_meeting)
         return Response(serializer.data)
+
+    @action(detail=True, methods=["post"])
+    def add_recurrence(self, request, pk=None):
+        meeting = self.get_object()
+        recurrence_data = request.data.get("recurrence")
+
+        # Validate the recurrence data
+        recurrence_serializer = MeetingRecurrenceSerializer(data=recurrence_data)
+        if recurrence_serializer.is_valid():
+            recurrence = recurrence_serializer.save()
+
+            # Associate the recurrence with the meeting
+            meeting.recurrence = recurrence
+            meeting.save(update_fields=["recurrence"])
+
+            return Response({"status": "recurrence set"}, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                recurrence_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
 
     # Move tasks and agenda items to the next occurrence
     @action(detail=False, methods=["POST"])

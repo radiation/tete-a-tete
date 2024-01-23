@@ -128,6 +128,9 @@ class MeetingRecurrence(models.Model):
     def get_next_occurrence(self, source_datetime):
         return meeting_service.get_next_occurrence_date(self, source_datetime)
 
+    def __str__(self):
+        return f"{self.frequency} recurrence every {self.interval} {self.week_day} {self.month_week}"
+
 
 class MeetingAttendee(models.Model):
     meeting = models.ForeignKey("Meeting", on_delete=models.CASCADE)

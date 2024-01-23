@@ -65,7 +65,6 @@ def create_or_update_record(validated_data, model_name, create=True):
     logger.debug(
         f"Creating/Updating record for model {model_name} with data: {validated_data}"
     )
-
     Model = apps.get_model("restapi", model_name)
     SerializerClass = serializers_dict[model_name]
 

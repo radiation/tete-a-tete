@@ -49,20 +49,30 @@ class MeetingModelTest(TestCase):
     def test_get_next_occurrence(self):
         # Mock the asynchronous task to create a new meeting
         with patch("restapi.tasks.create_or_update_record.delay") as mock_task:
-            mock_task.side_effect = lambda meeting_data, model_name, create: (
-                Meeting.objects.create(**meeting_data) if create else None
-            )
+
+            def side_effect(meeting_data, model_name, create):
+                if create:
+                    if "recurrence" in meeting_data:
+                        # Fetch the MeetingRecurrence instance corresponding to the provided ID
+                        recurrence_id = meeting_data["recurrence"]
+                        meeting_data["recurrence"] = MeetingRecurrence.objects.get(
+                            id=recurrence_id
+                        )
+                    return Meeting.objects.create(**meeting_data)
+                else:
+                    return None
+
+            mock_task.side_effect = side_effect
 
             # Test get_next_occurrence on the existing meeting
             next_meeting = self.meeting.get_next_occurrence()
             self.assertIsNone(next_meeting, "Expected no next meeting yet")
-
             # Test get_next_occurrence again
             next_meeting = self.meeting.get_next_occurrence()
 
-        self.assertIsNotNone(next_meeting, "Expected to find the next meeting")
-        self.assertEqual(next_meeting.recurrence, self.meeting.recurrence)
-        self.assertGreater(next_meeting.start_date, self.meeting.start_date)
+            self.assertIsNotNone(next_meeting, "Expected to find the next meeting")
+            self.assertEqual(next_meeting.recurrence, self.meeting.recurrence)
+            self.assertGreater(next_meeting.start_date, self.meeting.start_date)
 
 
 class MeetingRecurrenceModelTest(TestCase):
