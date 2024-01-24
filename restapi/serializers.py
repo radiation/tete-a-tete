@@ -46,6 +46,10 @@ class EventTimeSerializer(serializers.ModelSerializer):
 
 
 class MeetingSerializer(serializers.ModelSerializer):
+    recurrence = serializers.PrimaryKeyRelatedField(
+        queryset=MeetingRecurrence.objects.all(), allow_null=True, required=False
+    )
+
     class Meta:
         model = Meeting
         fields = "__all__"

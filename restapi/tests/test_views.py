@@ -73,6 +73,7 @@ class MeetingViewSetTestCase(TestCase):
     def test_create_meeting(self, mock_task):
         mock_task.side_effect = mock_create_or_update_record
         response = self.client.post("/api/meetings/", self.meeting_data, format="json")
+        print(response.data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Meeting.objects.count(), 2)
         new_meeting = Meeting.objects.latest("id")
