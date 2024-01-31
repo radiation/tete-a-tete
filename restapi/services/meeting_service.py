@@ -53,13 +53,25 @@ def get_next_occurrence_date(recurrence, source_datetime):
 
 def complete_meeting(meeting_id):
     from restapi.models import Meeting, MeetingTask
+    from restapi.tasks import create_or_update_batch
 
     meeting = Meeting.objects.get(pk=meeting_id)
     next_occurrence = meeting.get_next_occurrence()
+
     if next_occurrence:
-        for meeting_task in MeetingTask.objects.filter(meeting__id=meeting_id):
-            meeting_task.meeting = next_occurrence
-            meeting_task.save()
+        tasks_data = []
+        meeting_tasks = MeetingTask.objects.filter(meeting__id=meeting_id)
+
+        for meeting_task in meeting_tasks:
+            task_data = {
+                "id": meeting_task.id,  # Include the ID for updating
+                "meeting": next_occurrence.id,  # Set the new meeting ID
+            }
+            tasks_data.append(task_data)
+
+        # Enqueue a single task for batch updating MeetingTasks
+        if tasks_data:
+            create_or_update_batch.delay(tasks_data, "MeetingTask")
 
 
 def handle_next_meeting_creation(meeting):
