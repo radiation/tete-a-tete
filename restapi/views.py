@@ -65,7 +65,7 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
 
     def dispatch_task(self, serializer, create):
         model_name = self.get_serializer_class().Meta.model.__name__
-        data_dict = dict(serializer.validated_data)
+        data_dict = dict(serializer.data)
 
         for key in RELATIONS_MODEL_MAPPING:
             if key in data_dict and isinstance(
@@ -126,6 +126,33 @@ class MeetingViewSet(AsyncModelViewSet):
     def complete(self, request):
         meeting_service.complete_meeting(request.data.get("meeting_id"))
         return Response(status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["POST"])
+    def add_recurrence(self, request, pk=None):
+        meeting = self.get_object()
+        recurrence_id = request.data.get("recurrence")
+
+        # Fetch the existing MeetingRecurrence instance
+        if recurrence_id is not None:
+            recurrence = get_object_or_404(MeetingRecurrence, pk=recurrence_id)
+
+            # Associate the existing MeetingRecurrence with the Meeting
+            meeting.recurrence = recurrence
+            meeting.save()
+
+            # Dispatch the update task to Celery
+            meeting_serializer = self.get_serializer(meeting)
+            self.dispatch_task(meeting_serializer, create=False)
+
+            return Response(
+                {"message": "Meeting recurrence update dispatched"},
+                status=status.HTTP_202_ACCEPTED,
+            )
+        else:
+            return Response(
+                {"message": "Recurrence ID is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class MeetingRecurrenceViewSet(AsyncModelViewSet):

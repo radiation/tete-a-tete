@@ -21,6 +21,7 @@ serializers_dict = {
     "UserPreferences": UserPreferencesSerializer,
     "EventTime": EventTimeSerializer,
     "Meeting": MeetingSerializer,
+    "MeetingRecurrence": MeetingRecurrenceSerializer,
     "Task": TaskSerializer,
     "MeetingTask": MeetingTaskSerializer,
     "MeetingAttendee": MeetingAttendeeSerializer,
@@ -80,6 +81,25 @@ def create_or_update_record(validated_data, model_name, create=True):
     else:
         logger.error(f"Serializer errors: {serializer.errors}")
         return serializer.errors
+
+
+@shared_task(name="high_priority:create_or_update_batch")
+def create_or_update_batch(tasks_data, model_name):
+    Model = apps.get_model("restapi", model_name)
+    SerializerClass = serializers_dict[model_name]
+
+    for data in tasks_data:
+        instance = Model.objects.get(pk=data["id"])
+        serializer = SerializerClass(instance, data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            logger.error(
+                f"Serializer errors for {model_name} ID {data['id']}: {serializer.errors}"
+            )
+
+    return "Batch update completed"
 
 
 @shared_task()
