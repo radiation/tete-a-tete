@@ -14,7 +14,6 @@ from .serializers import *
 from .services import task_service
 from .tasks import *
 
-import json
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,6 +35,7 @@ RELATIONS_MODEL_MAPPING = {
     "meeting": Meeting,
     "task": Task,
     "user": CustomUser,
+    "recurrence": MeetingRecurrence,
 }
 
 MODEL_SERIALIZER_MAPPING = {
@@ -55,13 +55,11 @@ def health(request):
 # Base viewset class that creates or updates records asynchronously
 class AsyncModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
-        print(f"Performing create for serializer {serializer}")
         logger.debug(f"Performing create for serializer {serializer}")
         if serializer.is_valid(raise_exception=True):
             self.dispatch_task(serializer, create=True)
 
     def perform_update(self, serializer):
-        print(f"Performing update for serializer {serializer}")
         logger.debug(f"Performing update for serializer {serializer}")
         if serializer.is_valid(raise_exception=True):
             self.dispatch_task(serializer, create=False)
@@ -138,24 +136,12 @@ class MeetingViewSet(AsyncModelViewSet):
         meeting = self.get_object()
         recurrence_data = request.data.get("recurrence")
 
-        print(f"Recurrence data type: {type(recurrence_data)}")
         print(f"Recurrence data: {recurrence_data}")
+
         # Parse recurrence_data if it's a string
         if isinstance(recurrence_data, str) or isinstance(recurrence_data, int):
             # Convert recurrence_data to a dict
             recurrence_data = {"id": recurrence_data}
-            """
-            print("Parsing recurrence data")
-            print(f"json.loads(recurrence_data): {json.loads(recurrence_data)}")
-            try:
-                recurrence_data = json.loads(recurrence_data)
-            except json.JSONDecodeError:
-                return Response(
-                    {"detail": "Invalid JSON format for recurrence data."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )"""
-
-        print(recurrence_data)
 
         # Validate the recurrence data
         recurrence_serializer = MeetingRecurrenceSerializer(data=recurrence_data)
@@ -169,7 +155,6 @@ class MeetingViewSet(AsyncModelViewSet):
 
             return Response({"status": "recurrence set"}, status=status.HTTP_200_OK)
         else:
-            print(recurrence_serializer.errors)
             return Response(
                 recurrence_serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
@@ -185,6 +170,7 @@ class MeetingViewSet(AsyncModelViewSet):
         meeting = self.get_object()
         recurrence_id = request.data.get("recurrence")
 
+        print(f"Recurrence ID: {recurrence_id}")
         # Fetch the existing MeetingRecurrence instance
         if recurrence_id is not None:
             recurrence = get_object_or_404(MeetingRecurrence, pk=recurrence_id)

@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import is_aware, make_aware
 from restapi.models import *
 from restapi.serializers import *
 from restapi.factories import (
@@ -85,7 +84,7 @@ class MeetingSerializerTest(TestCase):
                     "end_date",
                     "notes",
                     "num_reschedules",
-                    'reminder_sent',
+                    "reminder_sent",
                     "created_at",
                 ]
             ),

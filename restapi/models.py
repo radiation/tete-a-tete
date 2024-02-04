@@ -119,9 +119,7 @@ class MeetingRecurrence(models.Model):
     frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES)
     week_day = models.IntegerField(choices=WEEKDAY_CHOICES, null=True, blank=True)
     month_week = models.IntegerField(choices=MONTH_WEEK_CHOICES, null=True, blank=True)
-    interval = models.IntegerField(
-        default=1
-    )  # Used for daily, weekly, and monthly frequencies
+    interval = models.IntegerField(default=1)
     end_recurrence = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 

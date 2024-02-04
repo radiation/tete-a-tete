@@ -10,7 +10,7 @@ class MeetingFactory(DjangoModelFactory):
     class Meta:
         model = Meeting
 
-    recurrence = factory.SubFactory("restapi.factories.MeetingRecurrenceFactory")
+    # recurrence = factory.SubFactory("restapi.factories.MeetingRecurrenceFactory")
     title = factory.Faker("sentence")
     start_date = factory.Faker(
         "future_datetime", tzinfo=timezone.get_current_timezone()
