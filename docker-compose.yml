@@ -23,6 +23,7 @@ services:
       - redis
       - mailhog
       - db
+
   db:
     image: postgres:15-alpine
     volumes:
@@ -33,6 +34,7 @@ services:
       - POSTGRES_USER=agendable
       - POSTGRES_PASSWORD=agendable
       - POSTGRES_DB=agendable_dev
+
   ngrok:
     image: wernight/ngrok
     ports:
@@ -47,8 +49,10 @@ services:
     ports:
       - "1025:1025" # SMTP server
       - "8025:8025" # Web interface
+
   redis:
     image: redis:7-alpine
+
   celery_worker:
     build:
       context: .
@@ -60,8 +64,8 @@ services:
     env_file:
       - ./.env/dev
     depends_on:
-      web:
-        condition: service_healthy
+      - web
+
   celery_beat:
     build:
       context: .
@@ -73,8 +77,8 @@ services:
     env_file:
       - ./.env/dev
     depends_on:
-      web:
-        condition: service_healthy
+      - web
+
   flower:
     build:
       context: .
@@ -90,7 +94,6 @@ services:
     depends_on:
       - redis
       - db
-
 
 volumes:
   postgres_data:
