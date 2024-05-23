@@ -16,6 +16,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("accounts/", include("allauth.urls")),  # Adds URLs for Google authentication
     path("api/", include("restapi.urls")),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
