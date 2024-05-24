@@ -28,7 +28,7 @@ services:
     image: wernight/ngrok
     ports:
       - "4040:4040"
-    command: ngrok http web:8000
+    command: ngrok http 8000 --region=us --log=stdout
     env_file:
       - ./.env/dev
 

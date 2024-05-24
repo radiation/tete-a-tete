@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "restapi",
     "django_celery_beat",
     "channels",
+    "sslserver",
     "drf_yasg",
 ]
 
@@ -202,12 +203,20 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = False  # In development, True in production if applicable
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:1337",
+    "https://*.ngrok.io",
+]
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://*.ngrok.io",
 ]
 
 # Email settings
@@ -274,6 +283,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "SCOPE": [
             "profile",
             "email",
+            "https://www.googleapis.com/auth/calendar",
         ],
         "AUTH_PARAMS": {
             "access_type": "online",
