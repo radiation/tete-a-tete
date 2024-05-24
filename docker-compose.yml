@@ -28,7 +28,7 @@ services:
     image: wernight/ngrok
     ports:
       - "4040:4040"
-    command: ngrok http 8000 --region=us --log=stdout
+    command: ngrok http --subdomain=agendable https://localhost:8000 -bind-tls=true --region=us --log=stdout
     env_file:
       - ./.env/dev
 
