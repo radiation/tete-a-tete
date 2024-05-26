@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "corsheaders",
+    "common",
     "users",
     "restapi",
     "django_celery_beat",
