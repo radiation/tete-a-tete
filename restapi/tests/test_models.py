@@ -1,28 +1,9 @@
 import datetime
-from time import sleep
 from django.test import TestCase
 from restapi.factories import *
+from users.models import CustomUser
 from restapi.models import *
 from unittest.mock import patch
-
-
-class UserModelTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = CustomUserFactory()
-
-    def test_user_email(self):
-        self.assertIsNotNone(self.user.email)
-        self.assertIn("@", self.user.email)
-
-    def test_user_name(self):
-        self.assertTrue(self.user.first_name.isalpha())
-        self.assertTrue(self.user.last_name.isalpha())
-
-    def test_user_attributes(self):
-        self.assertTrue(self.user.is_active)
-        self.assertFalse(self.user.is_staff)
-        self.assertFalse(self.user.is_superuser)
 
 
 class MeetingModelTest(TestCase):
