@@ -33,6 +33,15 @@ services:
       - POSTGRES_USER=agendable
       - POSTGRES_PASSWORD=agendable
       - POSTGRES_DB=agendable_dev
+  ngrok:
+    image: wernight/ngrok
+    ports:
+      - "4040:4040"
+    command: ngrok http --subdomain=agendable http://web:8000 --region=us --log=stdout
+    env_file:
+      - ./.env/dev
+    depends_on:
+      - web
   mailhog:
     image: mailhog/mailhog
     ports:
