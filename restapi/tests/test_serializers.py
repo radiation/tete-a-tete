@@ -1,68 +1,14 @@
 from django.test import TestCase
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import is_aware, make_aware
 from restapi.models import *
 from restapi.serializers import *
 from restapi.factories import (
-    CustomUserFactory,
     MeetingFactory,
     MeetingRecurrenceFactory,
     MeetingAttendeeFactory,
     MeetingTaskFactory,
     TaskFactory,
 )
-
-
-class UserSerializerTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user_instance = CustomUserFactory()
-        cls.serializer = UserSerializer(instance=cls.user_instance)
-
-    def test_contains_expected_fields(self):
-        data = self.serializer.data
-        expected_fields = {
-            "id",
-            "email",
-            "first_name",
-            "last_name",
-            "password",
-            "is_staff",
-            "is_active",
-            "is_superuser",
-            "date_joined",
-            "last_login",
-            "groups",
-            "user_permissions",
-        }
-        self.assertEqual(set(data.keys()), expected_fields)
-
-    def test_serialization(self):
-        data = self.serializer.data
-        self.assertEqual(data["email"], self.user_instance.email)
-
-    def test_deserialization_and_validation(self):
-        user_data = {
-            "email": "newuser@example.com",
-            "password": "password",
-            "first_name": "John",
-            "last_name": "Doe",
-        }
-        serializer = UserSerializer(data=user_data)
-        if not serializer.is_valid():
-            logger.error(serializer.errors)
-        self.assertTrue(serializer.is_valid())
-
-        user = serializer.save()
-        self.assertEqual(user.email, user_data["email"])
-
-    def test_invalid_deserialization(self):
-        invalid_data = {
-            "email": "invalidemail",
-        }
-        serializer = UserSerializer(data=invalid_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("email", serializer.errors)
 
 
 class MeetingSerializerTest(TestCase):

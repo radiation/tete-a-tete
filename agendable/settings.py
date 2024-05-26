@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "corsheaders",
+    "users",
     "restapi",
     "django_celery_beat",
     "channels",
@@ -247,7 +248,7 @@ EMAIL_CONFIRM_REDIRECT_BASE_URL = "http://localhost:8000/email/confirm/"
 PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = (
     "http://localhost:8000/password-reset/confirm/"
 )
-AUTH_USER_MODEL = "restapi.CustomUser"
+AUTH_USER_MODEL = "users.CustomUser"
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 # Celery settings
