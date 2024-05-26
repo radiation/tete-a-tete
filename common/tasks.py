@@ -1,12 +1,7 @@
 from celery import Celery, shared_task
-from celery.schedules import crontab
-from django import test
 from django.apps import apps
-from django.core.mail import send_mail
-from django.utils import timezone
-from datetime import timedelta
 
-from restapi.consumers import notify_channel_layer
+from common.consumers import notify_channel_layer
 
 from users.serializers import *
 from restapi.serializers import *

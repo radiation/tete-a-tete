@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from users.models import CustomUser
 from restapi.models import Meeting, Task, MeetingAttendee
 from restapi.serializers import TaskSerializer, MeetingAttendeeSerializer
-from restapi.tasks import create_or_update_record
+from common.tasks import create_or_update_record
 
 import logging
 
