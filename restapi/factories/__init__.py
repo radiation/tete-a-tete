@@ -1,4 +1,3 @@
-from .user_factory import CustomUserFactory
 from .meeting_factory import MeetingFactory
 from .meeting_attendance_factory import MeetingAttendeeFactory
 from .task_factory import TaskFactory

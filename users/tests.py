@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from restapi.factories import *
-from users.models import CustomUser
+from users.factory import CustomUserFactory
 from users.serializers import UserSerializer
 from unittest.mock import patch
 

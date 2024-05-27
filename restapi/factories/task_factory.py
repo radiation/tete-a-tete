@@ -14,4 +14,4 @@ class TaskFactory(DjangoModelFactory):
     due_date = factory.Faker("future_datetime", tzinfo=timezone.get_current_timezone())
     completed = False
     completed_date = None
-    assignee = factory.SubFactory("restapi.factories.CustomUserFactory")
+    assignee = factory.SubFactory("users.factory.CustomUserFactory")
