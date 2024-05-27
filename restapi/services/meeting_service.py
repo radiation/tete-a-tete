@@ -5,7 +5,7 @@ import calendar
 
 
 def create_next_meeting(meeting):
-    from restapi.tasks import create_or_update_record
+    from common.tasks import create_or_update_record
 
     next_occurrence_time = meeting.recurrence.get_next_occurrence(meeting.start_date)
     if next_occurrence_time and (
@@ -53,7 +53,7 @@ def get_next_occurrence_date(recurrence, source_datetime):
 
 def complete_meeting(meeting_id):
     from restapi.models import Meeting, MeetingTask
-    from restapi.tasks import create_or_update_batch
+    from common.tasks import create_or_update_batch
 
     meeting = Meeting.objects.get(pk=meeting_id)
     next_occurrence = meeting.get_next_occurrence()
