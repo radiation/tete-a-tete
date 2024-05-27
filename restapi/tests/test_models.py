@@ -29,7 +29,7 @@ class MeetingModelTest(TestCase):
 
     def test_get_next_occurrence(self):
         # Mock the asynchronous task to create a new meeting
-        with patch("restapi.tasks.create_or_update_record.delay") as mock_task:
+        with patch("common.tasks.create_or_update_record.delay") as mock_task:
             mock_task.side_effect = lambda meeting_data, model_name, create: (
                 Meeting.objects.create(**meeting_data) if create else None
             )
