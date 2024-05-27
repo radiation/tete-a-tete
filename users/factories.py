@@ -17,4 +17,4 @@ class CustomUserFactory(DjangoModelFactory):
     is_active = True
     date_joined = factory.Faker("past_datetime", tzinfo=timezone.get_current_timezone())
     last_login = factory.Faker("past_datetime", tzinfo=timezone.get_current_timezone())
-    password = factory.Faker("password")
+    password = factory.PostGenerationMethodCall("set_password", "defaultpassword")

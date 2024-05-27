@@ -9,4 +9,4 @@ class MeetingAttendeeFactory(DjangoModelFactory):
         model = MeetingAttendee
 
     meeting = factory.SubFactory("restapi.factories.MeetingFactory")
-    user = factory.SubFactory("users.factory.CustomUserFactory")
+    user = factory.SubFactory("users.factories.CustomUserFactory")
