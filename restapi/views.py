@@ -72,7 +72,7 @@ class MeetingViewSet(AsyncModelViewSet):
     @action(detail=True, methods=["POST"])
     def add_recurrence(self, request, pk=None):
         meeting = self.get_object()
-        recurrence_id = request.data.get("recurrence")
+        recurrence_id = request.data.get("recurrence_id")
 
         # Fetch the existing MeetingRecurrence instance
         if recurrence_id is not None:
