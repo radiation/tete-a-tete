@@ -27,17 +27,19 @@ class MeetingViewSetTest(APITestCase):
         # Creating the user with a hashed password
         cls.user = CustomUserFactory()
 
-    def setUp(self):
-        # Log in the user for each test
-        self.client.login(email=self.user.email, password="defaultpassword")
 
-        # Prepare other data and URLs
-        self.meeting = MeetingFactory()
-        self.recurrence = MeetingRecurrenceFactory(meeting=self.meeting)
+def setUp(self):
+    # Log in the user for each test
+    self.client.login(email=self.user.email, password="defaultpassword")
 
-        self.meeting_recurrence_url = reverse("meeting-get-meeting-recurrence")
-        self.next_occurrence_url = reverse("meeting-get-next-occurrence")
-        # Additional setup for other tests
+    # Prepare other data and URLs
+    self.meeting = MeetingFactory()
+    self.recurrence = MeetingRecurrenceFactory(
+        meeting=self.meeting
+    )  # Ensure the meeting is passed to the factory
+
+    self.meeting_recurrence_url = reverse("meeting-get-meeting-recurrence")
+    self.next_occurrence_url = reverse("meeting-get-next-occurrence")
 
     @patch("common.tasks.create_or_update_record.delay")
     def test_create_meeting(self, mock_create_or_update):
@@ -49,13 +51,8 @@ class MeetingViewSetTest(APITestCase):
             "end_date": "2024-01-01T11:00:00Z",
         }
 
-        # Make the POST request
         response = self.client.post(reverse("meeting-list"), meeting_data)
-
-        # Check that the response status code is HTTP 201_CREATED
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # Additionally, ensure the mock was called, if the task's execution is significant to the test
         mock_create_or_update.assert_called_once()
 
     @patch("common.tasks.create_or_update_record.delay")
@@ -73,15 +70,13 @@ class MeetingViewSetTest(APITestCase):
         )
 
     def test_get_meeting_recurrence(self):
-        url = reverse("meeting-get-meeting-recurrence")
-        response = self.client.get(url, {"meeting_id": self.meeting.id})
+        response = self.client.get(
+            self.meeting_recurrence_url, {"meeting_id": self.meeting.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        expected_recurrence_pattern = (
-            self.meeting.recurrence.pattern if self.meeting.recurrence else None
-        )
-        self.assertEqual(
-            response.data["recurrence_pattern"], expected_recurrence_pattern
-        )
+        print(response.data)
+        print(self.recurrence)
+        self.assertEqual(response.data["id"], self.recurrence.id)
 
 
 """
