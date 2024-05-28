@@ -52,7 +52,7 @@ class UserPreferences(models.Model):
 
 
 class UserDigest(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_model, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     send_time = models.OneToOneField(
         EventTime, on_delete=models.CASCADE, verbose_name="Send Time"
     )

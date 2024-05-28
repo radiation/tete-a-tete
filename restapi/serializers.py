@@ -60,8 +60,6 @@ class MeetingTaskSerializer(serializers.ModelSerializer):
     task_id = serializers.PrimaryKeyRelatedField(
         queryset=Task.objects.all(),
         source="task",
-        write_list=False,
-        use_url=False,
         write_only=True,
     )
 

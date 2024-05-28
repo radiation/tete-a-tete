@@ -16,9 +16,9 @@ from allauth.socialaccount.views import signup
 from .views import *
 
 router = DefaultRouter()
-router.register(r"users", UserViewSet)
-router.register(r"user_preferences", UserPreferencesViewSet)
-router.register(r"event_times", EventTimeViewSet)
+router.register(r"users", UserViewSet, basename="user")
+router.register(r"user_preferences", UserPreferencesViewSet, basename="user-preference")
+router.register(r"event_times", EventTimeViewSet, basename="event-time")
 
 urlpatterns = [
     path("health/", health, name="health"),

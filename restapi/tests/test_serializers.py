@@ -153,27 +153,29 @@ class MeetingAttendeeSerializerTest(TestCase):
 
     def test_deserialization(self):
         data = {
-            "meeting": self.meeting_attendance_instance.meeting.id,
-            "user": self.meeting_attendance_instance.user.id,
+            "meeting_id": self.meeting_attendance_instance.meeting.id,
+            "user_id": self.meeting_attendance_instance.user.id,
             "is_scheduler": True,
         }
         serializer = MeetingAttendeeSerializer(data=data)
         self.assertTrue(serializer.is_valid())
         new_meeting_attendance = serializer.save()
-        self.assertEqual(new_meeting_attendance.meeting.id, data["meeting"])
-        self.assertEqual(new_meeting_attendance.user.id, data["user"])
+        self.assertEqual(new_meeting_attendance.meeting.id, data["meeting_id"])
+        self.assertEqual(new_meeting_attendance.user.id, data["user_id"])
         self.assertEqual(new_meeting_attendance.is_scheduler, data["is_scheduler"])
 
     def test_invalid_deserialization(self):
         invalid_data = {
-            "meeting": "",
+            "meeting_id": "",
         }
         serializer = MeetingAttendeeSerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())
-        self.assertIn("meeting", serializer.errors)
+        self.assertIn("meeting_id", serializer.errors)
 
 
 class TaskSerializerTest(TestCase):
+    assignee = UserSerializer(read_only=True)
+
     @classmethod
     def setUpTestData(self):
         self.task_instance = TaskFactory()
@@ -187,6 +189,7 @@ class TaskSerializerTest(TestCase):
                 [
                     "id",
                     "assignee",
+                    "assignee_detail",
                     "title",
                     "description",
                     "due_date",
@@ -199,7 +202,7 @@ class TaskSerializerTest(TestCase):
 
     def test_serialization(self):
         data = self.serializer.data
-        self.assertEqual(data["assignee"]["id"], self.task_instance.assignee.id)
+        self.assertEqual(data["assignee"], self.task_instance.assignee.id)
         self.assertEqual(data["title"], self.task_instance.title)
         self.assertEqual(data["description"], self.task_instance.description)
         self.assertEqual(parse_datetime(data["due_date"]), self.task_instance.due_date)
@@ -250,19 +253,19 @@ class MeetingTaskSerializerTest(TestCase):
 
     def test_deserialization(self):
         data = {
-            "meeting": MeetingFactory().id,
-            "task": TaskFactory().id,
+            "meeting_id": MeetingFactory().id,
+            "task_id": TaskFactory().id,
         }
         serializer = MeetingTaskSerializer(data=data)
         self.assertTrue(serializer.is_valid())
         new_meeting_task = serializer.save()
-        self.assertEqual(new_meeting_task.meeting.id, data["meeting"])
-        self.assertEqual(new_meeting_task.task.id, data["task"])
+        self.assertEqual(new_meeting_task.meeting.id, data["meeting_id"])
+        self.assertEqual(new_meeting_task.task.id, data["task_id"])
 
     def test_invalid_deserialization(self):
         invalid_data = {
-            "meeting": "",
+            "meeting_id": "",
         }
         serializer = MeetingTaskSerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())
-        self.assertIn("meeting", serializer.errors)
+        self.assertIn("meeting_id", serializer.errors)
