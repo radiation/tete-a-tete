@@ -48,15 +48,14 @@ class UserDigestSerializer(serializers.ModelSerializer):
     user_id = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), source="user", write_only=True
     )
-    send_time = EventTimeSerializer(read_node=True)
+    send_time = EventTimeSerializer(read_only=True)
     send_time_id = serializers.PrimaryKeyRelatedField(
         queryset=EventTime.objects.all(), source="send_time", write_only=True
     )
 
     class Meta:
-        model = UserDigest
-        fields = "__all__" + ("user_id", "send_time_id")
+        model = UserDigest  # Adjust with your correct model name
+        fields = ("__all__", "user_id", "send_time_id")  # Make it a single tuple
 
     def to_representation(self, instance):
-        # This override is no longer necessary if using the setup above.
         return super(UserDigestSerializer, self).to_representation(instance)
