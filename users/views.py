@@ -20,7 +20,7 @@ def email_confirm_redirect(request, key):
         r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
         key,
     ):
-        return Http404("Invalid key format")
+        raise Http404("Invalid key format")
 
     return HttpResponseRedirect(f"{settings.EMAIL_CONFIRM_REDIRECT_BASE_URL}{key}/")
 
