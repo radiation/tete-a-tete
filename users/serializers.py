@@ -17,6 +17,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def validate_email(self, value):
+        # Check if the instance is being updated and if the email has not changed
+        if self.instance and self.instance.email == value:
+            return value
         if CustomUser.objects.filter(email=value).exists():
             raise serializers.ValidationError("A user with this email already exists.")
         return value
@@ -41,14 +44,19 @@ class EventTimeSerializer(serializers.ModelSerializer):
 
 
 class UserDigestSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
-    send_time = serializers.PrimaryKeyRelatedField(queryset=EventTime.objects.all())
+    user = UserSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), source="user", write_only=True
+    )
+    send_time = EventTimeSerializer(read_node=True)
+    send_time_id = serializers.PrimaryKeyRelatedField(
+        queryset=EventTime.objects.all(), source="send_time", write_only=True
+    )
 
     class Meta:
         model = UserDigest
-        fields = "__all__"
+        fields = "__all__" + ("user_id", "send_time_id")
 
     def to_representation(self, instance):
-        self.fields["user"] = UserSerializer(read_only=True)
-        self.fields["send_time"] = EventTimeSerializer(read_only=True)
+        # This override is no longer necessary if using the setup above.
         return super(UserDigestSerializer, self).to_representation(instance)

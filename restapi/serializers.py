@@ -22,23 +22,16 @@ class EventTimeSerializer(serializers.ModelSerializer):
 
 
 class MeetingSerializer(serializers.ModelSerializer):
+    recurrence = serializers.SerializerMethodField()
+
     class Meta:
         model = Meeting
         fields = "__all__"
 
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-
-        if isinstance(instance, dict) and "recurrence" in instance:
-            recurrence_id = instance["recurrence"]
-            recurrence_instance = MeetingRecurrence.objects.get(id=recurrence_id)
-            ret["recurrence"] = MeetingRecurrenceSerializer(recurrence_instance).data
-        elif hasattr(instance, "recurrence") and instance.recurrence is not None:
-            ret["recurrence"] = MeetingRecurrenceSerializer(instance.recurrence).data
-        else:
-            ret["recurrence"] = None
-
-        return ret
+    def get_recurrence(self, obj):
+        if obj.recurrence:
+            return MeetingRecurrenceSerializer(obj.recurrence).data
+        return None
 
 
 class MeetingRecurrenceSerializer(serializers.ModelSerializer):
@@ -48,58 +41,45 @@ class MeetingRecurrenceSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    assignee = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    assignee_detail = serializers.SerializerMethodField()
 
     class Meta:
         model = Task
         fields = "__all__"
 
-    def to_representation(self, instance):
-        ret = super(TaskSerializer, self).to_representation(instance)
-        assignee_email = (
-            instance["assignee"] if isinstance(instance, dict) else instance.assignee
-        )
-        ret["assignee"] = UserSerializer(assignee_email).data
-        return ret
+    def get_assignee_detail(self, obj):
+        return UserSerializer(obj.assignee).data
 
 
 class MeetingTaskSerializer(serializers.ModelSerializer):
-    meeting = serializers.PrimaryKeyRelatedField(queryset=Meeting.objects.all())
-    task = serializers.PrimaryKeyRelatedField(queryset=Task.objects.all())
+    meeting = MeetingSerializer(read_only=True)
+    task = TaskSerializer(read_only=True)
+    meeting_id = serializers.PrimaryKeyRelatedField(
+        queryset=Meeting.objects.all(), source="meeting", write_only=True
+    )
+    task_id = serializers.PrimaryKeyRelatedField(
+        queryset=Task.objects.all(),
+        source="task",
+        write_list=False,
+        use_url=False,
+        write_only=True,
+    )
 
     class Meta:
         model = MeetingTask
         fields = "__all__"
 
-    def to_representation(self, instance):
-        ret = super(MeetingTaskSerializer, self).to_representation(instance)
-        if isinstance(instance, dict):
-            meeting_id = instance["meeting"]
-            task_id = instance["task"]
-        else:
-            meeting_id = instance.meeting
-            task_id = instance.task
-        ret["meeting"] = MeetingSerializer(meeting_id).data
-        ret["task"] = TaskSerializer(task_id).data
-        return ret
-
 
 class MeetingAttendeeSerializer(serializers.ModelSerializer):
-    meeting = serializers.PrimaryKeyRelatedField(queryset=Meeting.objects.all())
-    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    meeting = MeetingSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+    meeting_id = serializers.PrimaryKeyRelatedField(
+        queryset=Meeting.objects.all(), source="meeting", write_only=True
+    )
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), source="user", write_only=True
+    )
 
     class Meta:
         model = MeetingAttendee
         fields = "__all__"
-
-    def to_representation(self, instance):
-        ret = super(MeetingAttendeeSerializer, self).to_representation(instance)
-        if isinstance(instance, dict):
-            meeting_id = instance["meeting"]
-            user_id = instance["user"]
-        else:
-            meeting_id = instance.meeting
-            user_id = instance.user
-        ret["meeting"] = MeetingSerializer(meeting_id).data
-        ret["user"] = UserSerializer(user_id).data
-        return ret

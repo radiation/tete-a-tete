@@ -46,13 +46,17 @@ class UserPreferences(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True
     )
     timezone = models.CharField(max_length=50, default="UTC")
-    working_days = models.IntegerField(
-        models.IntegerField(choices=WEEKDAY_CHOICES, null=True, blank=True)
-    )
+    working_days = models.IntegerField(choices=WEEKDAY_CHOICES, null=True, blank=True)
     working_hours_start = models.TimeField(default="09:00:00")
     working_hours_end = models.TimeField(default="17:00:00")
 
 
 class UserDigest(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    send_time = models.ForeignKey(EventTime, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_model, on_delete=models.CASCADE)
+    send_time = models.OneToOneField(
+        EventTime, on_delete=models.CASCADE, verbose_name="Send Time"
+    )
+
+    class Meta:
+        verbose_name = "User Digest"
+        verbose_name_plural = "User Digests"
