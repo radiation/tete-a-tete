@@ -8,8 +8,6 @@ router.register(
 )
 router.register(r"tasks", TaskViewSet, basename="task")
 router.register(r"meeting_tasks", MeetingTaskViewSet, basename="meeting-task")
-router.register(
-    r"meeting_attendees", MeetingAttendeeViewSet, basename="meeting-attendee"
-)
+router.register(r"meeting_attendees", MeetingAttendeeViewSet, basename="meeting-attendee")
 
 urlpatterns = router.urls
