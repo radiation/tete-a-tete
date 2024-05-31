@@ -29,8 +29,13 @@ class MeetingSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_recurrence(self, obj):
-        if obj.recurrence:
-            return MeetingRecurrenceSerializer(obj.recurrence).data
+        if isinstance(obj, dict):
+            recurrence = obj.get("recurrence", None)
+        else:
+            recurrence = getattr(obj, "recurrence", None)
+
+        if recurrence:
+            return MeetingRecurrenceSerializer(recurrence).data
         return None
 
 
