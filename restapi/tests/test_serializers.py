@@ -9,6 +9,11 @@ from restapi.factories import (
     MeetingTaskFactory,
     TaskFactory,
 )
+from users.factories import CustomUserFactory
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class MeetingSerializerTest(TestCase):
@@ -152,13 +157,17 @@ class MeetingAttendeeSerializerTest(TestCase):
         )
 
     def test_deserialization(self):
+        new_meeting = MeetingFactory()
+        new_user = CustomUserFactory()
         data = {
-            "meeting_id": self.meeting_attendance_instance.meeting.id,
-            "user_id": self.meeting_attendance_instance.user.id,
+            "meeting_id": new_meeting.id,
+            "user_id": new_user.id,
             "is_scheduler": True,
         }
         serializer = MeetingAttendeeSerializer(data=data)
-        self.assertTrue(serializer.is_valid())
+        if not serializer.is_valid():
+            logger.debug(serializer.errors)
+            self.fail(f"Serializer validation failed: {serializer.errors}")
         new_meeting_attendance = serializer.save()
         self.assertEqual(new_meeting_attendance.meeting.id, data["meeting_id"])
         self.assertEqual(new_meeting_attendance.user.id, data["user_id"])

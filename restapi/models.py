@@ -55,6 +55,9 @@ class MeetingRecurrence(models.Model):
     end_recurrence = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
+    def __str__(self) -> str:
+        return f"{self.frequency.capitalize()} recurrence starting {self.created_at.strftime('%Y-%m-%d')}"
+
 
 class MeetingAttendee(models.Model):
     meeting = models.ForeignKey("Meeting", on_delete=models.CASCADE)
@@ -63,7 +66,8 @@ class MeetingAttendee(models.Model):
     )
     is_scheduler = models.BooleanField(default=False)
 
-    unique_together = [["meeting", "user"]]
+    class Meta:
+        unique_together = (("meeting", "user"),)
 
 
 class MeetingTask(models.Model):
@@ -72,7 +76,7 @@ class MeetingTask(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        unique_together = [["meeting", "task"]]
+        unique_together = (("meeting", "task"),)
 
 
 class Task(models.Model):
@@ -91,6 +95,11 @@ class Task(models.Model):
             logger.debug(f"Creating new task: {str(self)}")
         else:
             logger.debug(f"Updating task {str(self)}")
+
+        # Check if the task is marked as not completed and clear the completed_date if so
+        if not self.completed:
+            self.completed_date = None
+
         super().save(*args, **kwargs)
 
     def __str__(self):
