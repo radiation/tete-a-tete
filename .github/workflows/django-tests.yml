@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     strategy:
@@ -29,7 +30,7 @@ jobs:
 
     - name: Run tests with coverage
       env:
-        SECRET_KEY: ${{ secrets.DJANGO_SECRETY_KEY }}
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
       run: |
         coverage run manage.py test
 
