@@ -180,14 +180,16 @@ LOGGING = {
             "level": os.environ.get("LOG_LEVEL", "INFO"),  # Log level for Django
             "propagate": True,  # Propagate logs to parent loggers
         },
-        "your_application_name": {
+        "restapi": {
             "handlers": ["console"],
-            "level": os.environ.get(
-                "LOG_LEVEL", "INFO"
-            ),  # Adjust the level to your needs
+            "level": os.environ.get("LOG_LEVEL", "INFO"),
             "propagate": False,
         },
-        # Add other loggers here if needed
+        "users": {
+            "handlers": ["console"],
+            "level": os.environ.get("LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
     },
 }
 
