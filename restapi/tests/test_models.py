@@ -1,4 +1,5 @@
 import datetime
+from django.db import IntegrityError
 from django.test import TestCase
 from restapi.factories import *
 from users.models import CustomUser
@@ -15,6 +16,12 @@ class MeetingModelTest(TestCase):
     def test_meeting_title(self):
         self.assertTrue(isinstance(self.meeting.title, str))
         self.assertTrue(len(self.meeting.title) > 0)
+
+    def test_meeting_str(self):
+        meeting = MeetingFactory(
+            title="Board Meeting", start_date=datetime.datetime(2023, 5, 15, 14, 30)
+        )
+        self.assertEqual(str(meeting), "2023-05-15 14:30:00: Board Meeting")
 
     def test_meeting_dates(self):
         self.assertTrue(isinstance(self.meeting.start_date, datetime.datetime))
@@ -62,6 +69,13 @@ class MeetingRecurrenceModelTest(TestCase):
         )
         self.assertTrue(isinstance(self.meeting_recurrence.interval, int))
 
+    def test_meeting_recurrence_str(self):
+        recurrence = MeetingRecurrenceFactory(frequency="daily")
+        expected_str = (
+            f"Daily recurrence starting {recurrence.created_at.strftime('%Y-%m-%d')}"
+        )
+        self.assertEqual(str(recurrence), expected_str)
+
 
 class MeetingAttendeeModelTest(TestCase):
     @classmethod
@@ -86,13 +100,45 @@ class TaskModelTest(TestCase):
         self.assertTrue(isinstance(self.task.completed, bool))
         self.assertTrue(isinstance(self.task.created_at, datetime.datetime))
 
+    def test_task_completion(self):
+        completed_at = timezone.now()
+        task = TaskFactory(completed=True, completed_date=completed_at)
+        self.assertEqual(task.completed_date, completed_at)
+
+        # Test setting to not completed clears the date
+        task.completed = False
+        task.save()
+        self.assertIsNone(task.completed_date)
+
 
 class MeetingTaskModelTest(TestCase):
     @classmethod
-    def setUpTestData(self):
-        self.meeting_task = MeetingTaskFactory()
+    def setUpTestData(cls):
+        cls.meeting_task = MeetingTaskFactory()
 
     def test_meeting_task_fields(self):
+        logger.debug(f"MeetingTask: {self.meeting_task}")
         self.assertTrue(isinstance(self.meeting_task.meeting, Meeting))
         self.assertTrue(isinstance(self.meeting_task.task, Task))
         self.assertTrue(isinstance(self.meeting_task.created_at, datetime.datetime))
+
+    def test_meeting_task_uniqueness(self):
+        # Create an initial MeetingTask instance
+        with self.assertRaises(IntegrityError):
+            MeetingTaskFactory(
+                meeting=self.meeting_task.meeting, task=self.meeting_task.task
+            )
+
+    def test_cascade_delete_to_meeting_task_from_meeting(self):
+        # Testing cascade delete when a Meeting is deleted
+        meeting_id = self.meeting_task.meeting.id
+        self.meeting_task.meeting.delete()
+        with self.assertRaises(MeetingTask.DoesNotExist):
+            MeetingTask.objects.get(meeting_id=meeting_id)
+
+    def test_cascade_delete_to_meeting_task_from_task(self):
+        # Testing cascade delete when a Task is deleted
+        task_id = self.meeting_task.task.id
+        self.meeting_task.task.delete()
+        with self.assertRaises(MeetingTask.DoesNotExist):
+            MeetingTask.objects.get(task_id=task_id)
