@@ -76,6 +76,14 @@ class MeetingSerializerTest(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("title", serializer.errors)
 
+    def test_handle_null_on_non_nullable_fields(self):
+        data = {
+            "title": None,
+        }
+        serializer = MeetingSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("title", serializer.errors)
+
 
 class MeetingRecurrenceSerializerTest(TestCase):
     @classmethod
@@ -135,6 +143,8 @@ class MeetingRecurrenceSerializerTest(TestCase):
 class MeetingAttendeeSerializerTest(TestCase):
     @classmethod
     def setUpTestData(self):
+        self.meeting = MeetingFactory()
+        self.user = CustomUserFactory()
         self.meeting_attendance_instance = MeetingAttendeeFactory()
         self.serializer = MeetingAttendeeSerializer(
             instance=self.meeting_attendance_instance
@@ -145,6 +155,29 @@ class MeetingAttendeeSerializerTest(TestCase):
         self.assertEqual(
             set(data.keys()), set(["id", "meeting", "user", "is_scheduler"])
         )
+
+    def test_read_only_fields(self):
+        # Attempt to set read-only fields via serializer input
+        data = {
+            "meeting_id": self.meeting.id,  # Assuming this tries to set a read-only 'meeting'
+            "user_id": self.user.id,
+            "is_scheduler": False,
+        }
+        serializer = MeetingAttendeeSerializer(
+            self.meeting_attendance_instance, data=data
+        )
+
+        # Check if serializer is valid and ignores the read-only 'meeting' field
+        if serializer.is_valid():
+            instance = serializer.save()
+            # Check if the meeting field hasn't changed despite the input provided
+            self.assertEqual(
+                instance.meeting.id, self.meeting_attendance_instance.meeting.id
+            )
+        else:
+            # Log error if not valid
+            logger.debug(serializer.errors)
+            self.fail(f"Serializer validation failed: {serializer.errors}")
 
     def test_serialization(self):
         data = self.serializer.data
@@ -208,6 +241,13 @@ class TaskSerializerTest(TestCase):
                 ]
             ),
         )
+
+    def test_get_assignee_detail(self):
+        user = CustomUserFactory()
+        task = TaskFactory(assignee=user)
+        serializer = TaskSerializer(instance=task)
+        expected = UserSerializer(instance=user).data
+        self.assertEqual(serializer.data["assignee_detail"], expected)
 
     def test_serialization(self):
         data = self.serializer.data
