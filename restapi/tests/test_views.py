@@ -5,6 +5,7 @@ from restapi.factories import (
     MeetingFactory,
     MeetingAttendeeFactory,
     MeetingRecurrenceFactory,
+    MeetingTaskFactory,
     TaskFactory,
 )
 from restapi.serializers import (
@@ -30,6 +31,8 @@ class MeetingViewSetTest(APITestCase):
         # Prepare other data and URLs
         self.meeting = MeetingFactory()
         self.recurrence = MeetingRecurrenceFactory(meeting=self.meeting)
+        self.task = TaskFactory()
+        self.meeting_task = MeetingTaskFactory(meeting=self.meeting, task=self.task)
 
         self.meeting_recurrence_url = reverse("meeting-get-meeting-recurrence")
         self.next_occurrence_url = reverse("meeting-get-next-occurrence")

@@ -1,4 +1,5 @@
-from django.utils import timezone
+from django.db import IntegrityError
+from django.utils.timezone import now
 from common.tasks import (
     create_or_update_record,
     create_or_update_batch,
@@ -20,11 +21,7 @@ class MeetingService:
     # Return a meeting object based on the recurrence
     @staticmethod
     def get_next_occurrence(meeting):
-        """
-        Retrieves the next occurrence of a meeting based on its recurrence pattern.
-        If there is no subsequent meeting found, attempts to create one.
-        """
-        logger.debug(f"Finding next occurrence for {meeting.title}")
+        logger.debug(f"Finding next occurrence for {meeting}")
         try:
             # Attempt to find the next occurrence in the database
             next_meeting = (
@@ -34,7 +31,6 @@ class MeetingService:
                 .order_by("start_date")
                 .first()
             )
-
             if next_meeting:
                 logger.debug(f"Next meeting found: {next_meeting}")
                 return next_meeting
@@ -42,7 +38,8 @@ class MeetingService:
                 logger.debug(
                     f"No next meeting found for {meeting.title}. Creating one."
                 )
-                MeetingService.create_next_meeting(meeting)
+                next_meeting = MeetingService.create_next_meeting(meeting)
+                return next_meeting
         except Exception as e:
             logger.error(f"Failed to retrieve or create the next occurrence: {str(e)}")
 
@@ -51,35 +48,53 @@ class MeetingService:
 
     @staticmethod
     def create_next_meeting(meeting):
-
-        next_occurrence_time = get_next_occurrence_date(
+        next_occurrence_date = get_next_occurrence_date(
             meeting.recurrence, meeting.start_date
         )
-        if next_occurrence_time and (
+        if next_occurrence_date and (
             not meeting.recurrence.end_recurrence
-            or next_occurrence_time <= meeting.recurrence.end_recurrence
+            or next_occurrence_date <= meeting.recurrence.end_recurrence
         ):
             duration = meeting.end_date - meeting.start_date
-            logger.debug(
-                f"Creating next meeting for {meeting.title} at {next_occurrence_time}"
-            )
             meeting_data = {
                 "recurrence": meeting.recurrence,
                 "title": meeting.title,
-                "start_date": next_occurrence_time,
-                "end_date": next_occurrence_time + duration,
+                "start_date": next_occurrence_date,
+                "end_date": next_occurrence_date + duration,
                 "notes": meeting.notes,
                 "num_reschedules": meeting.num_reschedules,
-                "created_at": timezone.now(),
+                "created_at": now(),
             }
-            create_or_update_record.delay(meeting_data, "Meeting", create=True)
+            logger.debug(
+                f"Creating next meeting for {meeting.title} at {next_occurrence_date}"
+            )
+            try:
+                new_meeting = Meeting.objects.create(**meeting_data)
+                logger.debug(f"Next meeting created: {new_meeting}")
+                return new_meeting
+            except IntegrityError as e:
+                logger.error(
+                    f"Failed to create the next meeting due to a data integrity issue: {str(e)}"
+                )
+            except Exception as e:
+                logger.error(
+                    f"Unexpected error occurred while creating the next meeting: {str(e)}"
+                )
+        else:
+            logger.warning(
+                f"No valid occurrence time found or out of recurrence range for {meeting.title}"
+            )
+
+        return None
 
     @staticmethod
     def complete_meeting(meeting_id):
 
+        logger.debug(f"Completing meeting {meeting_id}")
         meeting = Meeting.objects.get(pk=meeting_id)
         next_occurrence = MeetingService.get_next_occurrence(meeting)
 
+        logger.debug(f"Next occurrence for {meeting.title}: {next_occurrence}")
         if next_occurrence:
             tasks_data = []
             meeting_tasks = MeetingTask.objects.filter(meeting__id=meeting_id)
