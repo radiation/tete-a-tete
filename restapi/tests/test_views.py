@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from users.factories import CustomUserFactory
@@ -8,8 +7,6 @@ from restapi.factories import (
     MeetingRecurrenceFactory,
     TaskFactory,
 )
-from restapi.models import MeetingRecurrence
-from restapi.services import meeting_service
 from restapi.serializers import (
     MeetingSerializer,
     MeetingRecurrenceSerializer,
@@ -79,8 +76,8 @@ class MeetingViewSetTest(APITestCase):
         # self.assertIn("next_occurrence_date", response.data)
 
     @patch("common.tasks.create_or_update_batch.delay")
-    def test_complete_meeting(self, mock_complete_meeting):
+    def test_complete_meeting(self, mock_create_or_update_batch):
         url = reverse("meeting-complete", kwargs={"pk": self.meeting.id})
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        mock_complete_meeting.assert_called_once()
+        mock_create_or_update_batch.assert_called_once()

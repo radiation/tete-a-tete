@@ -3,6 +3,7 @@ from django.test import TestCase
 from restapi.factories import *
 from users.models import CustomUser
 from restapi.models import *
+from restapi.services import MeetingService
 from unittest.mock import patch
 
 
@@ -35,11 +36,11 @@ class MeetingModelTest(TestCase):
             )
 
             # Test get_next_occurrence on the existing meeting
-            next_meeting = self.meeting.get_next_occurrence()
+            next_meeting = MeetingService.get_next_occurrence(self.meeting)
             self.assertIsNone(next_meeting, "Expected no next meeting yet")
 
             # Test get_next_occurrence again
-            next_meeting = self.meeting.get_next_occurrence()
+            next_meeting = MeetingService.get_next_occurrence(self.meeting)
 
         self.assertIsNotNone(next_meeting, "Expected to find the next meeting")
         self.assertEqual(next_meeting.recurrence, self.meeting.recurrence)

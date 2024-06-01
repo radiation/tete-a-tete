@@ -5,7 +5,6 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from common.constants import WEEKDAY_CHOICES, MONTH_WEEK_CHOICES, FREQUENCY_CHOICES
-from .services import meeting_service
 
 import logging
 
@@ -24,22 +23,6 @@ class Meeting(models.Model):
     num_reschedules = models.IntegerField(default=0)
     reminder_sent = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
-
-    # Return a meeting object bsaed on the recurrence
-    def get_next_occurrence(self):
-        next_meeting = (
-            Meeting.objects.filter(
-                recurrence=self.recurrence, start_date__gt=self.start_date
-            )
-            .order_by("start_date")
-            .first()
-        )
-
-        if next_meeting:
-            return next_meeting
-        elif self.recurrence:
-            meeting_service.create_next_meeting(self)
-            return None
 
     def clean(self):
         if self.end_date and self.start_date and self.end_date < self.start_date:
@@ -71,9 +54,6 @@ class MeetingRecurrence(models.Model):
     )  # Used for daily, weekly, and monthly frequencies
     end_recurrence = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
-
-    def get_next_occurrence(self, source_datetime):
-        return meeting_service.get_next_occurrence_date(self, source_datetime)
 
 
 class MeetingAttendee(models.Model):
