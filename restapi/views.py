@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from common.views import AsyncModelViewSet
 from .models import *
 from .serializers import *
-from .services import task_service
+from .services import MeetingService, TaskService
 from .tasks import *
 
 import logging
@@ -62,8 +62,10 @@ class MeetingViewSet(AsyncModelViewSet):
     @action(detail=False, methods=["GET"])
     def get_next_occurrence(self, request):
         meeting_id = request.query_params.get("meeting_id")
+        logger.debug(f"\n\nGetting next occurrence for meeting {meeting_id}\n\n")
         meeting = get_object_or_404(Meeting, pk=meeting_id)
-        next_occurrence = meeting.get_next_occurrence()
+        next_occurrence = MeetingService.get_next_occurrence(meeting)
+        logger.debug(f"\n\nNext occurrence: {next_occurrence}\n\n")
         if next_occurrence:
             serializer = MeetingSerializer(next_occurrence)
             return Response(serializer.data)
@@ -74,7 +76,7 @@ class MeetingViewSet(AsyncModelViewSet):
     # Move tasks and agenda items to the next occurrence
     @action(detail=False, methods=["POST"])
     def complete(self, request):
-        meeting_service.complete_meeting(request.data.get("meeting_id"))
+        MeetingService.complete_meeting(request.data.get("meeting_id"))
         return Response(status=status.HTTP_200_OK)
 
     # Add a MeetingRecurrence to a Meeting
@@ -105,7 +107,7 @@ class MeetingViewSet(AsyncModelViewSet):
     @action(detail=True, methods=["POST"])
     def complete(self, request, pk=None):
         meeting = self.get_object()
-        meeting_service.complete_meeting(meeting.id)
+        MeetingService.complete_meeting(meeting.id)
         return Response(status=status.HTTP_200_OK)
 
 
@@ -131,7 +133,7 @@ class TaskViewSet(AsyncModelViewSet):
     # Mark a task as complete
     @action(detail=False, methods=["POST"])
     def mark_complete(self, request):
-        task_service.mark_task_complete(request.data.get("task_id"))
+        TaskService.mark_task_complete(request.data.get("task_id"))
         return Response(status=status.HTTP_200_OK)
 
 
