@@ -25,6 +25,7 @@ class Meeting(models.Model):
     reminder_sent = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
 
+    # Return a meeting object bsaed on the recurrence
     def get_next_occurrence(self):
         next_meeting = (
             Meeting.objects.filter(
