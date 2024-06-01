@@ -2,6 +2,9 @@ from django.utils import timezone
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 import calendar
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def create_next_meeting(meeting):
@@ -13,6 +16,9 @@ def create_next_meeting(meeting):
         or next_occurrence_time <= meeting.recurrence.end_recurrence
     ):
         duration = meeting.end_date - meeting.start_date
+        logger.debug(
+            f"Creating next meeting for {meeting.title} at {next_occurrence_time}"
+        )
         meeting_data = {
             "recurrence": meeting.recurrence,
             "title": meeting.title,
@@ -63,15 +69,20 @@ def complete_meeting(meeting_id):
         meeting_tasks = MeetingTask.objects.filter(meeting__id=meeting_id)
 
         for meeting_task in meeting_tasks:
-            task_data = {
-                "id": meeting_task.id,  # Include the ID for updating
-                "meeting": next_occurrence.id,  # Set the new meeting ID
-            }
+            task_data = {"id": meeting_task.id, "meeting": next_occurrence}
             tasks_data.append(task_data)
 
-        # Enqueue a single task for batch updating MeetingTasks
         if tasks_data:
+            logger.debug(
+                f"Sending the following data for batch processing: {tasks_data}"
+            )
             create_or_update_batch.delay(tasks_data, "MeetingTask")
+
+            # Return meeting id for next occurrence for further processing
+            return next_occurrence.id
+
+    else:
+        return None
 
 
 def handle_next_meeting_creation(meeting):

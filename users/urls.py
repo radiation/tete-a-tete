@@ -21,7 +21,6 @@ router.register(r"user_preferences", UserPreferencesViewSet, basename="user-pref
 router.register(r"event_times", EventTimeViewSet, basename="event-time")
 
 urlpatterns = [
-    path("health/", health, name="health"),
     path("register/", RegisterView.as_view(), name="rest_register"),
     path("login/", LoginView.as_view(), name="rest_login"),
     path("logout/", LogoutView.as_view(), name="rest_logout"),

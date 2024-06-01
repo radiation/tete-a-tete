@@ -1,19 +1,16 @@
-from django.db import connections
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
+from rest_framework import viewsets
 from rest_framework.response import Response
 from users.models import CustomUser
 from restapi.models import Meeting, Task, MeetingAttendee
 from restapi.serializers import TaskSerializer, MeetingAttendeeSerializer
 from common.tasks import create_or_update_record
-
 import logging
 
 logger = logging.getLogger(__name__)
 
-# For looking up related models
+# These generic mappings are used to pull model objects from IDs and vice versa
 RELATIONS_MODEL_MAPPING = {
     "assignee": CustomUser,
     "meeting": Meeting,
@@ -21,38 +18,52 @@ RELATIONS_MODEL_MAPPING = {
     "user": CustomUser,
 }
 
+# This mapping is used to get the appropriate serializer for a given model
 MODEL_SERIALIZER_MAPPING = {
     Task: TaskSerializer,
     MeetingAttendee: MeetingAttendeeSerializer,
 }
 
-# Base viewset class that creates or updates records asynchronously
+
+"""
+We're extending ModelViewSet to handle asynchronous record creation and updates.
+"""
+
+
 class AsyncModelViewSet(viewsets.ModelViewSet):
+
+    # Overload ModelViewSet.create to dispatch a task via celery
     def perform_create(self, serializer):
-        logger.debug(f"Performing create for serializer {serializer}")
-        if serializer.is_valid(raise_exception=True):
-            self.dispatch_task(serializer, create=True)
+        logger.debug(f"Performing create for data {serializer.validated_data}")
+        self.dispatch_task(serializer.validated_data, create=True)
 
+    # Overload ModelViewSet.update to dispatch a task via celery
     def perform_update(self, serializer):
-        logger.debug(f"Performing update for serializer {serializer}")
-        if serializer.is_valid(raise_exception=True):
-            self.dispatch_task(serializer, create=False)
+        logger.debug(f"Performing update for data {serializer.validated_data}")
+        self.dispatch_task(serializer.validated_data, create=False)
 
-    def dispatch_task(self, serializer, create):
+    # Dispatch a task to create or update a record
+    def dispatch_task(self, data, create):
         model_name = self.get_serializer_class().Meta.model.__name__
-        data_dict = dict(serializer.data)
+        prepared_data = self.prepare_data_for_task(data)
 
-        for key in RELATIONS_MODEL_MAPPING:
-            if key in data_dict and isinstance(
-                data_dict[key], RELATIONS_MODEL_MAPPING[key]
-            ):
-                logger.debug(f"Found related model {key} in data_dict")
-                data_dict[key] = data_dict[key].id
+        logger.debug(f"Dispatching task for {model_name} with data: {prepared_data}")
+        create_or_update_record.delay(prepared_data, model_name, create=create)
 
-        create_or_update_record.delay(data_dict, model_name, create=create)
+    # Prepare the data by converting related models to their IDs
+    def prepare_data_for_task(self, data):
+        logger.debug(f"Preparing ${type(data)} with data: {data} for task dispatch")
+        prepared_data = dict(data)  # Make a copy to avoid modifying the original data
+        for key, model_class in RELATIONS_MODEL_MAPPING.items():
+            if key in prepared_data and isinstance(prepared_data[key], model_class):
+                prepared_data[key] = prepared_data[key].id
+        return prepared_data
 
+    # This could be attendees, tasks, etc, so we pass the model as a param
     def list_by_meeting(self, request, model):
         meeting_id = request.query_params.get("meeting_id")
+
+        # The request must include a meeting_id parameter
         if not meeting_id:
             raise Http404("Meeting ID is required")
 
@@ -61,6 +72,7 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer_for_model(model, queryset, many=True)
         return Response(serializer.data)
 
+    # We need to map the serializer to the model so we can use it to get serialized data
     def get_serializer_for_model(self, model, *args, **kwargs):
         serializer_class = MODEL_SERIALIZER_MAPPING.get(model)
         if serializer_class is None:

@@ -1,6 +1,7 @@
 from django.db import connections
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.db.utils import OperationalError
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
@@ -28,6 +29,14 @@ MODEL_SERIALIZER_MAPPING = {
     Task: TaskSerializer,
     MeetingAttendee: MeetingAttendeeSerializer,
 }
+
+
+def health(request):
+    try:
+        connections["default"].cursor()
+    except OperationalError:
+        return HttpResponse("Database unavailable", status=503)
+    return HttpResponse("OK")
 
 
 class MeetingViewSet(AsyncModelViewSet):
@@ -83,7 +92,7 @@ class MeetingViewSet(AsyncModelViewSet):
             serializer = self.get_serializer(meeting)
 
             # Dispatch the update task to Celery, assuming dispatch_task handles serialized data correctly
-            self.dispatch_task(serializer, create=False)
+            self.dispatch_task(serializer.data, create=False)
 
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
         else:
@@ -91,6 +100,13 @@ class MeetingViewSet(AsyncModelViewSet):
                 {"message": "Recurrence ID is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    # Complete a meeting
+    @action(detail=True, methods=["POST"])
+    def complete(self, request, pk=None):
+        meeting = self.get_object()
+        meeting_service.complete_meeting(meeting.id)
+        return Response(status=status.HTTP_200_OK)
 
 
 class MeetingRecurrenceViewSet(AsyncModelViewSet):
