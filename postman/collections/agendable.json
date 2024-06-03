@@ -1,0 +1,206 @@
+{
+	"info": {
+		"_postman_id": "91b0e5e4-c33a-4779-86d9-deaefd63aa36",
+		"name": "Agendable",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8340326",
+		"_collection_link": "https://agendable.postman.co/workspace/Agendable-Workspace~b489e296-fe31-4e51-8d2b-361e5e26788a/collection/8340326-91b0e5e4-c33a-4779-86d9-deaefd63aa36?action=share&source=collection_link&creator=8340326"
+	},
+	"item": [
+		{
+			"name": "Get Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"auth_token\", jsonData.key);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{superuser_email}}\",\n  \"password\": \"{{superuser_password}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/users/login/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users/user/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Meeting",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let today = new Date();",
+							"let twoDaysFromNow = new Date(today.setDate(today.getDate() + 2));",
+							"twoDaysFromNow.setHours(12, 0, 0, 0); // 12:00 noon, with minutes, seconds, milliseconds set to 0",
+							"let startTime = twoDaysFromNow.toISOString();",
+							"let endTime = new Date(twoDaysFromNow.getTime() + 30 * 60000).toISOString();",
+							"pm.environment.set(\"startTime\", startTime);",
+							"pm.environment.set(\"endTime\", endTime);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Jane / John 1:1\",\n  \"start_date\": \"{{startTime}}\",\n  \"end_date\": \"{{endTime}}\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/meetings/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"meetings",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Meetings",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/meetings/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"meetings",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"// This script sets the Authorization header for each request in the collection",
+					"pm.request.headers.upsert({",
+					"    key: 'Authorization',",
+					"    value: 'Token ' + pm.variables.get(\"auth_token\")",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
