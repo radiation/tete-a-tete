@@ -1,0 +1,45 @@
+{
+	"id": "47795bb7-334c-496c-be1f-d92ec59f8bcc",
+	"name": "local",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "superuser_email",
+			"value": "bryan@bryanchoate.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "superuser_password",
+			"value": "complexpassword123",
+			"type": "secret",
+			"enabled": true
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "startTime",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "endTime",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2024-06-03T17:16:05.504Z",
+	"_postman_exported_using": "Postman/11.1.14"
+}
