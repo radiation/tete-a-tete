@@ -15,13 +15,32 @@
 					"script": {
 						"exec": [
 							"var jsonData = pm.response.json();",
-							"pm.environment.set(\"auth_token\", jsonData.key);"
+							"pm.environment.set(\"auth_token\", jsonData.key);",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Token set properly\", function () {",
+							"    pm.expect(jsonData).to.have.property('key');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.variables.set(\"skipAuth\", true);"
 						],
 						"type": "text/javascript",
 						"packages": {}
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
 			"request": {
 				"method": "POST",
 				"header": [
@@ -96,7 +115,9 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							""
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -156,6 +177,28 @@
 		},
 		{
 			"name": "List Meetings",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseData = pm.response.json();",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"if (responseData.length > 0) {",
+							"    let most_recent_meeting = responseData[responseData.length - 1].id;",
+							"    pm.environment.set(\"most_recent_meeting\", most_recent_meeting);",
+							"    pm.test(\"Most recent meeting is set\", function() {",
+							"        pm.expect(pm.environment.get(\"most_recent_meeting\")).to.eql(most_recent_meeting);",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -175,6 +218,369 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Create Recurrence",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let today = new Date();",
+							"let twoDaysFromNow = new Date(today.setDate(today.getDate() + 2));",
+							"twoDaysFromNow.setHours(12, 0, 0, 0); // 12:00 noon, with minutes, seconds, milliseconds set to 0",
+							"let startTime = twoDaysFromNow.toISOString();",
+							"let endTime = new Date(twoDaysFromNow.getTime() + 30 * 60000).toISOString();",
+							"pm.environment.set(\"startTime\", startTime);",
+							"pm.environment.set(\"endTime\", endTime);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"week_day\": 1,\n      \"frequency\": \"weekly\",\n      \"start_time\": \"10:00\",\n      \"end_time\": \"11:00\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/meeting_recurrences/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"meeting_recurrences",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Meeting Recurrences",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseData = pm.response.json();",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"if (responseData.length > 0) {",
+							"    let most_recent_recurrence = responseData[responseData.length - 1].id;",
+							"    pm.environment.set(\"most_recent_recurrence\", most_recent_recurrence);",
+							"    pm.test(\"Most recent recurrence is set\", function() {",
+							"        pm.expect(pm.environment.get(\"most_recent_recurrence\")).to.eql(most_recent_recurrence);",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/meeting_recurrences/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"meeting_recurrences",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Recurrence To Meeting",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"recurrence_id\": \"{{most_recent_recurrence}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/meetings/{{most_recent_meeting}}/add_recurrence/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"meetings",
+						"{{most_recent_meeting}}",
+						"add_recurrence",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Meeting Attendee",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let today = new Date();",
+							"let twoDaysFromNow = new Date(today.setDate(today.getDate() + 2));",
+							"twoDaysFromNow.setHours(12, 0, 0, 0); // 12:00 noon, with minutes, seconds, milliseconds set to 0",
+							"let startTime = twoDaysFromNow.toISOString();",
+							"let endTime = new Date(twoDaysFromNow.getTime() + 30 * 60000).toISOString();",
+							"pm.environment.set(\"startTime\", startTime);",
+							"pm.environment.set(\"endTime\", endTime);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"meeting_id\": \"{{most_recent_meeting}}\",\n      \"user_id\": 1\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/meeting_attendees/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"meeting_attendees",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Meeting Attendees",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseData = pm.response.json();",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"if (responseData.length > 0) {",
+							"    let most_recent_recurrence = responseData[responseData.length - 1].id;",
+							"    pm.environment.set(\"most_recent_recurrence\", most_recent_recurrence);",
+							"    pm.test(\"Most recent recurrence is set\", function() {",
+							"        pm.expect(pm.environment.get(\"most_recent_recurrence\")).to.eql(most_recent_recurrence);",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/meeting_attendees/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"meeting_attendees",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let today = new Date();",
+							"let twoDaysFromNow = new Date(today.setDate(today.getDate() + 2));",
+							"twoDaysFromNow.setHours(12, 0, 0, 0); // 12:00 noon, with minutes, seconds, milliseconds set to 0",
+							"let startTime = twoDaysFromNow.toISOString();",
+							"let endTime = new Date(twoDaysFromNow.getTime() + 30 * 60000).toISOString();",
+							"pm.environment.set(\"startTime\", startTime);",
+							"pm.environment.set(\"endTime\", endTime);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"assignee\": 1,\n    \"title\": \"Look at me!\",\n    \"description\": \"Task description etc etc\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/tasks/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"tasks",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Tasks",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseData = pm.response.json();",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"if (responseData.length > 0) {",
+							"    let most_recent_task = responseData[responseData.length - 1].id;",
+							"    pm.environment.set(\"most_recent_task\", most_recent_task);",
+							"    pm.test(\"Most recent task is set\", function() {",
+							"        pm.expect(pm.environment.get(\"most_recent_task\")).to.eql(most_recent_task);",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/tasks/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"tasks",
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
@@ -184,11 +590,14 @@
 				"type": "text/javascript",
 				"packages": {},
 				"exec": [
-					"// This script sets the Authorization header for each request in the collection",
-					"pm.request.headers.upsert({",
-					"    key: 'Authorization',",
-					"    value: 'Token ' + pm.variables.get(\"auth_token\")",
-					"});"
+					"if (!pm.variables.get(\"skipAuth\")) {",
+					"    pm.request.headers.upsert({",
+					"        key: 'Authorization',",
+					"        value: 'Token ' + pm.variables.get(\"auth_token\")",
+					"    });",
+					"} else {",
+					"    pm.variables.unset(\"skipAuth\");",
+					"}"
 				]
 			}
 		},
