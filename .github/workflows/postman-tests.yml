@@ -1,14 +1,17 @@
-name: Postman Tests
+name: Automated API tests using Postman CLI
 
-on: [push]
+on: push
 
 jobs:
-  run-postman:
+  automated-api-tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Run Postman Collection
-      uses: matt-ball/newman-action@v1
-      with:
-        collection: ./collections/agendable.json
-        environment: ./environments/local.json
+      - uses: actions/checkout@v3
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+      - name: Run API tests
+        run: |
+          postman collection run "${{ github.workspace }}/postman/collections/agendable.json" -e "8340326-47795bb7-334c-496c-be1f-d92ec59f8bcc" --integration-id "164027-${{ github.run_id }}"
