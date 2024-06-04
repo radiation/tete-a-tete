@@ -1,0 +1,14 @@
+name: Postman Tests
+
+on: [push]
+
+jobs:
+  run-postman:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run Postman Collection
+      uses: matt-ball/newman-action@v1
+      with:
+        collection: ./collections/agendable.json
+        environment: ./environments/local.json
