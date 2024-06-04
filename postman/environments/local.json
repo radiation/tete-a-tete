@@ -37,9 +37,33 @@
 			"value": "",
 			"type": "any",
 			"enabled": true
+		},
+		{
+			"key": "most_recent_meeting",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "most_recent_recurrence",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "retryAttempts",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "most_recent_task",
+			"value": "",
+			"type": "any",
+			"enabled": true
 		}
 	],
 	"_postman_variable_scope": "environment",
-	"_postman_exported_at": "2024-06-03T17:16:05.504Z",
+	"_postman_exported_at": "2024-06-04T01:03:37.613Z",
 	"_postman_exported_using": "Postman/11.1.14"
 }

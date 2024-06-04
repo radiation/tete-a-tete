@@ -53,7 +53,14 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_assignee_detail(self, obj):
-        return UserSerializer(obj.assignee).data
+        if isinstance(obj, dict):
+            assignee = obj.get("assignee", None)
+        else:
+            assignee = getattr(obj, "assignee", None)
+
+        if assignee:
+            return UserSerializer(assignee).data
+        return None
 
 
 class MeetingTaskSerializer(serializers.ModelSerializer):
