@@ -21,7 +21,6 @@ services:
       retries: 3
     depends_on:
       - redis
-      - mailhog
       - db
 
   db:
@@ -44,12 +43,16 @@ services:
       - ./.env/dev
     depends_on:
       - web
+    profiles:
+      - local
 
   mailhog:
     image: mailhog/mailhog
     ports:
       - "1025:1025" # SMTP server
       - "8025:8025" # Web interface
+    profiles:
+      - local
 
   redis:
     image: redis:7-alpine
@@ -95,6 +98,8 @@ services:
     depends_on:
       - redis
       - db
+    profiles:
+      - local
 
 volumes:
   postgres_data:
