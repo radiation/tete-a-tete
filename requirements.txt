@@ -21,3 +21,4 @@ pre-commit==3.6.0
 social-auth-app-django==5.4.1
 django-sslserver==0.22
 django-extensions==3.2.3
+djangorestframework-simplejwt==5.3.1
