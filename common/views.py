@@ -1,11 +1,17 @@
+from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import serializers, viewsets
 from rest_framework.response import Response
 from users.models import CustomUser
-from restapi.models import Meeting, Task, MeetingAttendee
-from restapi.serializers import TaskSerializer, MeetingAttendeeSerializer
+from restapi.models import Meeting, Task, MeetingAttendee, MeetingTask
+from restapi.serializers import (
+    TaskSerializer,
+    MeetingAttendeeSerializer,
+    MeetingTaskSerializer,
+)
 from common.tasks import create_or_update_record
+import json
 import logging
 
 logger = logging.getLogger(__name__)
@@ -22,6 +28,7 @@ RELATIONS_MODEL_MAPPING = {
 MODEL_SERIALIZER_MAPPING = {
     Task: TaskSerializer,
     MeetingAttendee: MeetingAttendeeSerializer,
+    MeetingTask: MeetingTaskSerializer,
 }
 
 
@@ -45,6 +52,7 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
     # Dispatch a task to create or update a record
     def dispatch_task(self, data, create):
         model_name = self.get_serializer_class().Meta.model.__name__
+        logger.debug(f"Dispatching task for {model_name} with data: {data}")
         prepared_data = self.prepare_data_for_task(data)
 
         logger.debug(f"Dispatching task for {model_name} with data: {prepared_data}")
@@ -52,11 +60,26 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
 
     # Prepare the data by converting related models to their IDs
     def prepare_data_for_task(self, data):
-        logger.debug(f"Preparing ${type(data)} with data: {data} for task dispatch")
-        prepared_data = dict(data)  # Make a copy to avoid modifying the original data
-        for key, model_class in RELATIONS_MODEL_MAPPING.items():
-            if key in prepared_data and isinstance(prepared_data[key], model_class):
-                prepared_data[key] = prepared_data[key].id
+        logger.debug(f"\n\nOriginal data: {data}\n\n")
+        prepared_data = {}
+        for field_name, value in data.items():
+            if isinstance(value, models.Model):
+                # Convert model instance to ID
+                prepared_data[field_name] = value.id
+            elif isinstance(
+                value, (list, models.QuerySet)
+            ):  # Handle ManyToMany fields or similar
+                prepared_data[field_name] = [item.id for item in value]
+            else:
+                prepared_data[field_name] = None
+
+        try:
+            json.dumps(prepared_data)  # Test if data is serializable
+        except TypeError as e:
+            logger.error(f"Data serialization error: {e}")
+            raise
+
+        logger.debug(f"\n\nPrepared data: {prepared_data}\n\n")
         return prepared_data
 
     # This could be attendees, tasks, etc, so we pass the model as a param
