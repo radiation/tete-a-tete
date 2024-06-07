@@ -47,6 +47,9 @@ class MeetingRecurrenceSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     assignee_detail = serializers.SerializerMethodField()
+    assignee = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), write_only=True, required=False
+    )
 
     class Meta:
         model = Task
