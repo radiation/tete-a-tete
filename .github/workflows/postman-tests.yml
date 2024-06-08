@@ -5,13 +5,29 @@ on: push
 jobs:
   automated-api-tests:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set up Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Build and start services
+        run: docker-compose -f docker-compose.ci.yml up -d
+
       - name: Install Postman CLI
         run: |
           curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
       - name: Login to Postman CLI
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+
       - name: Run API tests
         run: |
           postman collection run "${{ github.workspace }}/postman/collections/agendable.json" -e "8340326-47795bb7-334c-496c-be1f-d92ec59f8bcc" --integration-id "164027-${{ github.run_id }}"
+
+      - name: Cleanup
+        if: always()
+        run: docker-compose -f docker-compose.ci.yml down
