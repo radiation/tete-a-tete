@@ -230,7 +230,6 @@ class TaskSerializerTest(TestCase):
             set(
                 [
                     "id",
-                    "assignee",
                     "assignee_detail",
                     "title",
                     "description",
@@ -251,7 +250,7 @@ class TaskSerializerTest(TestCase):
 
     def test_serialization(self):
         data = self.serializer.data
-        self.assertEqual(data["assignee"], self.task_instance.assignee.id)
+        self.assertEqual(data["assignee_detail"]["id"], self.task_instance.assignee.id)
         self.assertEqual(data["title"], self.task_instance.title)
         self.assertEqual(data["description"], self.task_instance.description)
         self.assertEqual(parse_datetime(data["due_date"]), self.task_instance.due_date)
