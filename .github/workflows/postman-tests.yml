@@ -1,4 +1,4 @@
-name: Automated API tests using Postman CLI
+name: Postman CLI Tests
 
 on: push
 
@@ -15,7 +15,7 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
 
       - name: Build and start services
-        run: docker-compose -f docker-compose.ci.yml up -d
+        run: docker-compose -f docker-compose.yml up -d
 
       - name: Install Postman CLI
         run: |
