@@ -66,9 +66,7 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
             if isinstance(value, models.Model):
                 # Convert model instance to ID
                 prepared_data[field_name] = value.id
-            elif isinstance(
-                value, (list, models.QuerySet)
-            ):  # Handle ManyToMany fields or similar
+            elif isinstance(value, (list, models.QuerySet)):
                 prepared_data[field_name] = [item.id for item in value]
             else:
                 prepared_data[field_name] = None
