@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -63,13 +64,19 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
         logger.debug(f"\n\nOriginal data: {data}\n\n")
         prepared_data = {}
         for field_name, value in data.items():
+            logger.debug(
+                f"\nField name: {field_name}, Value ({type(value)}): {value}\n"
+            )
             if isinstance(value, models.Model):
                 # Convert model instance to ID
                 prepared_data[field_name] = value.id
             elif isinstance(value, (list, models.QuerySet)):
                 prepared_data[field_name] = [item.id for item in value]
+            elif isinstance(value, (datetime.date, datetime.datetime)):
+                # Format datetime objects as string
+                prepared_data[field_name] = value.isoformat()
             else:
-                prepared_data[field_name] = None
+                prepared_data[field_name] = value
 
         try:
             json.dumps(prepared_data)  # Test if data is serializable
