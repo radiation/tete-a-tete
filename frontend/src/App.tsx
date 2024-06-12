@@ -1,26 +1,23 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import Login from './components/Login';
 
-function App() {
+const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLoginSuccess = (token: string) => {
+    setIsAuthenticated(true);
+    // You can also set the user's state or perform a redirect here
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {!isAuthenticated ? (
+        <Login onLoginSuccess={handleLoginSuccess} />
+      ) : (
+        <div>Welcome! You are logged in.</div>
+      )}
     </div>
   );
-}
+};
 
 export default App;
