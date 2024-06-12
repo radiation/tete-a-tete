@@ -3,6 +3,7 @@ from datetime import timedelta
 from kombu import Queue
 import os
 import logging
+from corsheaders.defaults import default_headers
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -89,7 +91,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "allauth.account.middleware.AccountMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "agendable.urls"
@@ -218,18 +219,22 @@ USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = False  # In development, True in production if applicable
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:1337",
-    "https://*.ngrok.io",
-]
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://*.ngrok.io",
 ]
 CSRF_COOKIE_DOMAIN = ".ngrok.io"
 CSRF_COOKIE_SECURE = True
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "*",
+]
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "Authorization",
+]
 
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
