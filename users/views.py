@@ -38,8 +38,12 @@ def password_reset_confirm_redirect(request, uidb64, token):
 
 
 class UserViewSet(AsyncModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
+    try:
+        logger.debug(f"\n\nUserViewSet called\n\n")
+        queryset = CustomUser.objects.all()
+        serializer_class = UserSerializer
+    except Exception as e:
+        logger.error(e)
 
 
 class UserPreferencesViewSet(AsyncModelViewSet):
