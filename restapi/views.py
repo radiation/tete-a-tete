@@ -130,7 +130,7 @@ class TaskViewSet(AsyncModelViewSet):
     @action(detail=False, methods=["GET"])
     def list_by_user(self, request):
         user_id = request.query_params.get("user_id")
-        tasks = self.get_queryset().filter(assignee__id=user_id)
+        tasks = TaskService.get_tasks_by_user(user_id)
         serializer = self.get_serializer(tasks, many=True)
         return Response(serializer.decode())
 
@@ -170,11 +170,6 @@ class MeetingAttendeeViewSet(AsyncModelViewSet):
     @action(detail=False, methods=["GET"])
     def list_meetings_by_user(self, request):
         user_id = request.query_params.get("user_id")
-        meetings = (
-            Meeting.objects.filter(Q(meetingattendee__user__id=user_id))
-            .distinct()
-            .select_related("recurrence")
-            .prefetch_related("meetingattendee_set")
-        )
+        meetings = MeetingService.get_user_meetings(user_id)
         serializer = MeetingSerializer(meetings, many=True)
         return Response(serializer.data)

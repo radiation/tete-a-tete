@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import Q
 from django.utils.timezone import now
 from common.tasks import (
     create_or_update_record,
@@ -17,6 +18,16 @@ logger = logging.getLogger(__name__)
 
 
 class MeetingService:
+
+    @staticmethod
+    def get_meetings_by_user(user_id):
+        meetings = (
+            Meeting.objects.filter(Q(meetingattendee__user__id=user_id))
+            .distinct()
+            .select_related("recurrence")
+            .prefetch_related("meetingattendee_set")
+        )
+        return meetings
 
     # Return a meeting object based on the recurrence
     @staticmethod
@@ -124,9 +135,14 @@ class MeetingService:
 
 
 class TaskService:
+
     @staticmethod
     def mark_complete(task_id):
 
         task = Task.objects.get(pk=task_id)
         task.completed = True
         task.save()
+
+    @staticmethod
+    def get_tasks_by_user(user_id):
+        return Task.objects.filter(assignee__id=user_id)
