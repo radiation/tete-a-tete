@@ -1,11 +1,18 @@
 import re
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from common.views import AsyncModelViewSet
+from restapi.serializers import MeetingSerializer, TaskSerializer
 from .models import *
 from .serializers import *
+from .services import *
+from restapi.services import MeetingService, TaskService
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 import logging
 
@@ -35,6 +42,26 @@ def password_reset_confirm_redirect(request, uidb64, token):
     return HttpResponseRedirect(
         f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/"
     )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_dashboard(request):
+    user = request.user
+    profile_data = {
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+    }
+    tasks = TaskService.get_tasks_by_user(user.id)
+    meetings = MeetingService.get_meetings_by_user(user.id)
+    task_serializer = TaskSerializer(tasks, many=True)
+    meeting_serializer = MeetingSerializer(meetings, many=True)
+    return JsonResponse({
+        "profile": profile_data,
+        "tasks": task_serializer.data,
+        "meetings": meeting_serializer.data,
+    })
 
 
 class UserViewSet(AsyncModelViewSet):
