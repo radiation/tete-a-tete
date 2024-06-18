@@ -182,6 +182,11 @@ LOGGING = {
             "level": os.environ.get("LOG_LEVEL", "INFO"),  # Log level for Django
             "propagate": True,  # Propagate logs to parent loggers
         },
+        "common": {
+            "handlers": ["console"],
+            "level": os.environ.get("LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
         "restapi": {
             "handlers": ["console"],
             "level": os.environ.get("LOG_LEVEL", "INFO"),

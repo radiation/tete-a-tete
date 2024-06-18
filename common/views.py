@@ -63,20 +63,28 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
     def prepare_data_for_task(self, data):
         logger.debug(f"\n\nOriginal data: {data}\n\n")
         prepared_data = {}
+        # Define a mapping for parameters that need renaming
+        param_mapping = {
+            'meeting_id': 'meeting',
+            'user_id': 'user'
+        }
+
         for field_name, value in data.items():
-            logger.debug(
-                f"\nField name: {field_name}, Value ({type(value)}): {value}\n"
-            )
+            # Check if field needs to be renamed
+            correct_field_name = param_mapping.get(field_name, field_name)
+
+            logger.debug(f"\nField name: {field_name}, Corrected field name: {correct_field_name}, Value ({type(value)}): {value}\n")
             if isinstance(value, models.Model):
                 # Convert model instance to ID
-                prepared_data[field_name] = value.id
+                prepared_data[correct_field_name] = value.id
             elif isinstance(value, (list, models.QuerySet)):
-                prepared_data[field_name] = [item.id for item in value]
+                # Convert list of model instances to list of IDs
+                prepared_data[correct_field_name] = [item.id for item in value]
             elif isinstance(value, (datetime.date, datetime.datetime)):
                 # Format datetime objects as string
-                prepared_data[field_name] = value.isoformat()
+                prepared_data[correct_field_name] = value.isoformat()
             else:
-                prepared_data[field_name] = value
+                prepared_data[correct_field_name] = value
 
         try:
             json.dumps(prepared_data)  # Test if data is serializable
@@ -86,6 +94,7 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
 
         logger.debug(f"\n\nPrepared data: {prepared_data}\n\n")
         return prepared_data
+
 
     # This could be attendees, tasks, etc, so we pass the model as a param
     def list_by_meeting(self, request, model):
