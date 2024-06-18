@@ -153,14 +153,14 @@ class MeetingAttendeeSerializerTest(TestCase):
     def test_contains_expected_fields(self):
         data = self.serializer.data
         self.assertEqual(
-            set(data.keys()), set(["id", "meeting", "user", "is_scheduler"])
+            set(data.keys()), set(["meeting_detail", "user_detail", "is_scheduler"])
         )
 
     def test_read_only_fields(self):
         # Attempt to set read-only fields via serializer input
         data = {
-            "meeting_id": self.meeting.id,  # Assuming this tries to set a read-only 'meeting'
-            "user_id": self.user.id,
+            "meeting": self.meeting.id,  # Assuming this tries to set a read-only 'meeting'
+            "user": self.user.id,
             "is_scheduler": False,
         }
         serializer = MeetingAttendeeSerializer(
@@ -172,7 +172,7 @@ class MeetingAttendeeSerializerTest(TestCase):
             instance = serializer.save()
             # Check if the meeting field hasn't changed despite the input provided
             self.assertEqual(
-                instance.meeting.id, self.meeting_attendance_instance.meeting.id
+                instance.meeting, self.meeting_attendance_instance.meeting
             )
         else:
             # Log error if not valid
@@ -182,9 +182,9 @@ class MeetingAttendeeSerializerTest(TestCase):
     def test_serialization(self):
         data = self.serializer.data
         self.assertEqual(
-            data["meeting"]["id"], self.meeting_attendance_instance.meeting.id
+            data["meeting_detail"]["id"], self.meeting_attendance_instance.meeting.id
         )
-        self.assertEqual(data["user"]["id"], self.meeting_attendance_instance.user.id)
+        self.assertEqual(data["user_detail"]["id"], self.meeting_attendance_instance.user.id)
         self.assertEqual(
             data["is_scheduler"], self.meeting_attendance_instance.is_scheduler
         )
@@ -193,8 +193,8 @@ class MeetingAttendeeSerializerTest(TestCase):
         new_meeting = MeetingFactory()
         new_user = CustomUserFactory()
         data = {
-            "meeting_id": new_meeting.id,
-            "user_id": new_user.id,
+            "meeting": new_meeting.id,
+            "user": new_user.id,
             "is_scheduler": True,
         }
         serializer = MeetingAttendeeSerializer(data=data)
@@ -202,17 +202,17 @@ class MeetingAttendeeSerializerTest(TestCase):
             logger.debug(serializer.errors)
             self.fail(f"Serializer validation failed: {serializer.errors}")
         new_meeting_attendance = serializer.save()
-        self.assertEqual(new_meeting_attendance.meeting.id, data["meeting_id"])
-        self.assertEqual(new_meeting_attendance.user.id, data["user_id"])
+        self.assertEqual(new_meeting_attendance.meeting.id, data["meeting"])
+        self.assertEqual(new_meeting_attendance.user.id, data["user"])
         self.assertEqual(new_meeting_attendance.is_scheduler, data["is_scheduler"])
 
     def test_invalid_deserialization(self):
         invalid_data = {
-            "meeting_id": "",
+            "meeting": "",
         }
         serializer = MeetingAttendeeSerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())
-        self.assertIn("meeting_id", serializer.errors)
+        self.assertIn("meeting", serializer.errors)
 
 
 class TaskSerializerTest(TestCase):
@@ -292,23 +292,23 @@ class MeetingTaskSerializerTest(TestCase):
 
     def test_contains_expected_fields(self):
         data = self.serializer.data
-        self.assertEqual(set(data.keys()), set(["id", "meeting", "task", "created_at"]))
+        self.assertEqual(set(data.keys()), set(["id", "meeting_detail", "task_detail", "created_at"]))
 
     def test_serialization(self):
         data = self.serializer.data
-        self.assertEqual(data["meeting"]["id"], self.meeting_task_instance.meeting.id)
-        self.assertEqual(data["task"]["id"], self.meeting_task_instance.task.id)
+        self.assertEqual(data["meeting_detail"]["id"], self.meeting_task_instance.meeting.id)
+        self.assertEqual(data["task_detail"]["id"], self.meeting_task_instance.task.id)
 
     def test_deserialization(self):
         data = {
-            "meeting_id": MeetingFactory().id,
-            "task_id": TaskFactory().id,
+            "meeting": MeetingFactory().id,
+            "task": TaskFactory().id,
         }
         serializer = MeetingTaskSerializer(data=data)
         self.assertTrue(serializer.is_valid())
         new_meeting_task = serializer.save()
-        self.assertEqual(new_meeting_task.meeting.id, data["meeting_id"])
-        self.assertEqual(new_meeting_task.task.id, data["task_id"])
+        self.assertEqual(new_meeting_task.meeting.id, data["meeting"])
+        self.assertEqual(new_meeting_task.task.id, data["task"])
 
     def test_invalid_deserialization(self):
         invalid_data = {
@@ -316,4 +316,4 @@ class MeetingTaskSerializerTest(TestCase):
         }
         serializer = MeetingTaskSerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())
-        self.assertIn("meeting_id", serializer.errors)
+        self.assertIn("meeting", serializer.errors)

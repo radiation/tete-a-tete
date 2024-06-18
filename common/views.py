@@ -50,7 +50,7 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
         logger.debug(f"Performing update for data {serializer.validated_data}")
         self.dispatch_task(serializer.validated_data, create=False)
 
-    # Dispatch a task to create or update a record
+    # Dispatch a celery task to create or update a record
     def dispatch_task(self, data, create):
         model_name = self.get_serializer_class().Meta.model.__name__
         logger.debug(f"Dispatching task for {model_name} with data: {data}")
@@ -63,28 +63,18 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
     def prepare_data_for_task(self, data):
         logger.debug(f"\n\nOriginal data: {data}\n\n")
         prepared_data = {}
-        # Define a mapping for parameters that need renaming
-        param_mapping = {
-            'meeting_id': 'meeting',
-            'user_id': 'user'
-        }
-
         for field_name, value in data.items():
-            # Check if field needs to be renamed
-            correct_field_name = param_mapping.get(field_name, field_name)
-
-            logger.debug(f"\nField name: {field_name}, Corrected field name: {correct_field_name}, Value ({type(value)}): {value}\n")
             if isinstance(value, models.Model):
                 # Convert model instance to ID
-                prepared_data[correct_field_name] = value.id
+                prepared_data[field_name] = value.id
             elif isinstance(value, (list, models.QuerySet)):
                 # Convert list of model instances to list of IDs
-                prepared_data[correct_field_name] = [item.id for item in value]
+                prepared_data[field_name] = [item.id for item in value]
             elif isinstance(value, (datetime.date, datetime.datetime)):
                 # Format datetime objects as string
-                prepared_data[correct_field_name] = value.isoformat()
+                prepared_data[field_name] = value.isoformat()
             else:
-                prepared_data[correct_field_name] = value
+                prepared_data[field_name] = value
 
         try:
             json.dumps(prepared_data)  # Test if data is serializable
