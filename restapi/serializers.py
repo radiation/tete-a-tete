@@ -87,12 +87,16 @@ class MeetingAttendeeSerializer(serializers.ModelSerializer):
     meeting = MeetingSerializer(read_only=True)
     user = UserSerializer(read_only=True)
     meeting_id = serializers.PrimaryKeyRelatedField(
-        queryset=Meeting.objects.all(), source="meeting", write_only=True
+        queryset=Meeting.objects.all(), write_only=True, source="meeting", required=False
     )
     user_id = serializers.PrimaryKeyRelatedField(
-        queryset=CustomUser.objects.all(), source="user", write_only=True
+        queryset=CustomUser.objects.all(), write_only=True, source="user", required=False
     )
 
     class Meta:
         model = MeetingAttendee
-        fields = "__all__"
+        fields = ['meeting', 'user', 'meeting_id', 'user_id']
+        extra_kwargs = {
+            'meeting_id': {'write_only': True},
+            'user_id': {'write_only': True}
+        }

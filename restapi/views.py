@@ -142,7 +142,7 @@ class TaskViewSet(AsyncModelViewSet):
 
 
 class MeetingTaskViewSet(AsyncModelViewSet):
-    queryset = MeetingTask.objects.select_related("meeting", "task").all()
+    queryset = MeetingTask.objects.select_related("meeting_id", "task_id").all()
     serializer_class = MeetingTaskSerializer
 
     # Return all MeetingTask objects with related meeting and task objects
@@ -155,7 +155,7 @@ class MeetingTaskViewSet(AsyncModelViewSet):
 
 
 class MeetingAttendeeViewSet(AsyncModelViewSet):
-    queryset = MeetingAttendee.objects.select_related("meeting", "user").all()
+    queryset = MeetingAttendee.objects.select_related("meeting_id", "user_id").all()
     serializer_class = MeetingAttendeeSerializer
 
     # Return all MeetingAttendee objects with related meeting and user objects
