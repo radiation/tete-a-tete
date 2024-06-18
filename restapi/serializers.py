@@ -67,36 +67,30 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 class MeetingTaskSerializer(serializers.ModelSerializer):
-    meeting = MeetingSerializer(read_only=True)
-    task = TaskSerializer(read_only=True)
-    meeting_id = serializers.PrimaryKeyRelatedField(
-        queryset=Meeting.objects.all(), source="meeting", write_only=True
-    )
-    task_id = serializers.PrimaryKeyRelatedField(
-        queryset=Task.objects.all(),
-        source="task",
-        write_only=True,
-    )
+    meeting = serializers.PrimaryKeyRelatedField(queryset=Meeting.objects.all(), write_only=True, allow_null=False)
+    task = serializers.PrimaryKeyRelatedField(queryset=Task.objects.all(), write_only=True, allow_null=False)
+    meeting_detail = MeetingSerializer(source='meeting', read_only=True)
+    task_detail = TaskSerializer(source='task', read_only=True)
 
     class Meta:
         model = MeetingTask
         fields = "__all__"
+        extra_kwargs = {
+            'meeting': {'write_only': True},
+            'task': {'write_only': True}
+        }
 
 
 class MeetingAttendeeSerializer(serializers.ModelSerializer):
-    meeting = MeetingSerializer(read_only=True)
-    user = UserSerializer(read_only=True)
-    meeting_id = serializers.PrimaryKeyRelatedField(
-        queryset=Meeting.objects.all(), write_only=True, source="meeting", required=False
-    )
-    user_id = serializers.PrimaryKeyRelatedField(
-        queryset=CustomUser.objects.all(), write_only=True, source="user", required=False
-    )
+    meeting = serializers.PrimaryKeyRelatedField(queryset=Meeting.objects.all(), write_only=True, allow_null=False)
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), write_only=True, allow_null=False)
+    meeting_detail = MeetingSerializer(source='meeting', read_only=True)
+    user_detail = UserSerializer(source='user', read_only=True)
 
     class Meta:
         model = MeetingAttendee
-        fields = ['meeting', 'user', 'meeting_id', 'user_id']
+        fields = ['meeting', 'user', 'meeting_detail', 'user_detail', 'is_scheduler']
         extra_kwargs = {
-            'meeting_id': {'write_only': True},
-            'user_id': {'write_only': True}
+            'meeting': {'write_only': True},
+            'user': {'write_only': True}
         }

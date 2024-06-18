@@ -25,7 +25,7 @@ if DEBUG:
     hosts.append(".ngrok.io")
 
 ALLOWED_HOSTS = hosts
-print("Allowed Hosts:", ALLOWED_HOSTS)
+logger.debug("Allowed Hosts:", ALLOWED_HOSTS)
 
 SITE_ID = 1
 
