@@ -4,15 +4,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from users.factories import CustomUserFactory
 from restapi.factories import (
     MeetingFactory,
-    MeetingAttendeeFactory,
     MeetingRecurrenceFactory,
     MeetingTaskFactory,
     TaskFactory,
-)
-from restapi.serializers import (
-    MeetingSerializer,
-    MeetingRecurrenceSerializer,
-    TaskSerializer,
 )
 
 from unittest.mock import patch

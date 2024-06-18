@@ -65,12 +65,8 @@ def user_dashboard(request):
 
 
 class UserViewSet(AsyncModelViewSet):
-    try:
-        logger.debug(f"\n\nUserViewSet called\n\n")
-        queryset = CustomUser.objects.all()
-        serializer_class = UserSerializer
-    except Exception as e:
-        logger.error(e)
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
 
 
 class UserPreferencesViewSet(AsyncModelViewSet):
