@@ -1,7 +1,5 @@
 import re
 from django.http import Http404, HttpResponseRedirect, JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client

@@ -1,5 +1,4 @@
 from django.db import connections
-from django.db.models import Q
 from django.db.utils import OperationalError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
