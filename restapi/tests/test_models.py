@@ -5,7 +5,6 @@ from restapi.factories import *
 from users.models import CustomUser
 from restapi.models import *
 from restapi.services import MeetingService
-from unittest.mock import patch
 
 
 class MeetingModelTest(TestCase):

@@ -2,7 +2,7 @@ import datetime
 from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers, viewsets
+from rest_framework import viewsets
 from rest_framework.response import Response
 from users.models import CustomUser
 from restapi.models import Meeting, Task, MeetingAttendee, MeetingTask

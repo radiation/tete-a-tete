@@ -6,7 +6,6 @@ from django.contrib.auth import get_user_model
 from users.factories import CustomUserFactory
 from users.serializers import UserSerializer
 from restapi.factories import TaskFactory, MeetingAttendeeFactory
-from unittest.mock import patch
 import json
 
 

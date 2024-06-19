@@ -2,7 +2,6 @@ from django.db import IntegrityError
 from django.db.models import Q
 from django.utils.timezone import now
 from common.tasks import (
-    create_or_update_record,
     create_or_update_batch,
 )
 from restapi.models import (

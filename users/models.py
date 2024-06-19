@@ -1,8 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError, models
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
