@@ -6,10 +6,22 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from common.views import AsyncModelViewSet
-from .models import *
-from .serializers import *
-from .services import MeetingService, TaskService
-from .tasks import *
+from restapi.models import (
+    Meeting,
+    MeetingRecurrence,
+    MeetingAttendee,
+    Task,
+    MeetingTask,
+)
+from restapi.serializers import (
+    MeetingSerializer,
+    MeetingRecurrenceSerializer,
+    TaskSerializer,
+    MeetingTaskSerializer,
+    MeetingAttendeeSerializer,
+)
+from restapi.services import MeetingService, TaskService
+from users.models import CustomUser
 
 import logging
 
@@ -105,13 +117,6 @@ class MeetingViewSet(AsyncModelViewSet):
                 {"message": "Recurrence ID is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-    # Complete a meeting
-    @action(detail=True, methods=["POST"])
-    def complete(self, request, pk=None):
-        meeting = self.get_object()
-        MeetingService.complete_meeting(meeting.id)
-        return Response(status=status.HTTP_200_OK)
 
 
 class MeetingRecurrenceViewSet(AsyncModelViewSet):

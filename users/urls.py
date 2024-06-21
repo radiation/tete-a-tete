@@ -13,7 +13,15 @@ from dj_rest_auth.views import (
     PasswordResetView,
 )
 from allauth.socialaccount.views import signup
-from .views import *
+from users.views import (
+    UserViewSet,
+    UserPreferencesViewSet,
+    EventTimeViewSet,
+    GoogleLogin,
+    email_confirm_redirect,
+    password_reset_confirm_redirect,
+    user_dashboard,
+)
 
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
