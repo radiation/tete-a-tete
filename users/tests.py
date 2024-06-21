@@ -119,12 +119,13 @@ class UsersManagersTests(TestCase):
                 email="super@user.com", password="foo", is_superuser=False
             )
 
+
 class UserDashboardTestCase(APITestCase):
     def setUp(self):
         self.user = CustomUserFactory()
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
-        self.url = reverse('user-dashboard')  # Update with the actual URL name
+        self.url = reverse("user-dashboard")  # Update with the actual URL name
 
         # Create sample tasks and meetings
         TaskFactory.create_batch(5, assignee=self.user)
@@ -132,14 +133,14 @@ class UserDashboardTestCase(APITestCase):
 
     def test_user_dashboard_response(self):
         response = self.client.get(self.url)
-        response_data = json.loads(response.content)  
+        response_data = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('profile', response_data)
-        self.assertIn('tasks', response_data)
-        self.assertIn('meetings', response_data)
-        self.assertEqual(len(response_data['tasks']), 5)
-        self.assertEqual(len(response_data['meetings']), 3)
-        self.assertEqual(response_data['profile']['email'], self.user.email)
+        self.assertIn("profile", response_data)
+        self.assertIn("tasks", response_data)
+        self.assertIn("meetings", response_data)
+        self.assertEqual(len(response_data["tasks"]), 5)
+        self.assertEqual(len(response_data["meetings"]), 3)
+        self.assertEqual(response_data["profile"]["email"], self.user.email)
 
     def test_user_dashboard_unauthenticated(self):
         self.client.logout()

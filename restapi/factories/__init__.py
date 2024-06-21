@@ -5,9 +5,9 @@ from .meeting_task_factory import MeetingTaskFactory
 from .meeting_recurrence_factory import MeetingRecurrenceFactory
 
 __all__ = [
-    'MeetingFactory',
-    'MeetingAttendeeFactory',
-    'TaskFactory',
-    'MeetingTaskFactory',
-    'MeetingRecurrenceFactory',
+    "MeetingFactory",
+    "MeetingAttendeeFactory",
+    "TaskFactory",
+    "MeetingTaskFactory",
+    "MeetingRecurrenceFactory",
 ]
