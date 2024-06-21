@@ -50,7 +50,7 @@ def password_reset_confirm_redirect(request, uidb64, token):
     )
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def user_dashboard(request):
     user = request.user
@@ -63,11 +63,13 @@ def user_dashboard(request):
     meetings = MeetingService.get_meetings_by_user(user.id)
     task_serializer = TaskSerializer(tasks, many=True)
     meeting_serializer = MeetingSerializer(meetings, many=True)
-    return JsonResponse({
-        "profile": profile_data,
-        "tasks": task_serializer.data,
-        "meetings": meeting_serializer.data,
-    })
+    return JsonResponse(
+        {
+            "profile": profile_data,
+            "tasks": task_serializer.data,
+            "meetings": meeting_serializer.data,
+        }
+    )
 
 
 class UserViewSet(AsyncModelViewSet):

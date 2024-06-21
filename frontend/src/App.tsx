@@ -23,13 +23,13 @@ const App: React.FC = () => {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={
-                    !isAuthenticated ? 
-                    <Login onLoginSuccess={handleLoginSuccess} /> : 
+                    !isAuthenticated ?
+                    <Login onLoginSuccess={handleLoginSuccess} /> :
                     <Navigate replace to="/profile" />
                 } />
                 <Route path="/profile" element={
-                    isAuthenticated ? 
-                    <Profile token={token} /> : 
+                    isAuthenticated ?
+                    <Profile token={token} /> :
                     <Navigate replace to="/login" />
                 } />
                 <Route path="*" element={<Navigate replace to="/login" />} />

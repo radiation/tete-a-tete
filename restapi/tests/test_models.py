@@ -1,11 +1,7 @@
 import datetime
 from django.db import IntegrityError
 from django.test import TestCase
-from common.constants import (
-    FREQUENCY_CHOICES, 
-    MONTH_WEEK_CHOICES, 
-    WEEKDAY_CHOICES
-)
+from common.constants import FREQUENCY_CHOICES, MONTH_WEEK_CHOICES, WEEKDAY_CHOICES
 from restapi.factories import (
     MeetingFactory,
     MeetingRecurrenceFactory,
@@ -14,16 +10,13 @@ from restapi.factories import (
     MeetingTaskFactory,
 )
 from users.models import CustomUser
-from restapi.models import (
-    Meeting, 
-    MeetingTask, 
-    Task
-)
+from restapi.models import Meeting, MeetingTask, Task
 from restapi.services import MeetingService
 
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class MeetingModelTest(TestCase):
     @classmethod
@@ -118,7 +111,7 @@ class TaskModelTest(TestCase):
         self.assertTrue(isinstance(self.task.created_at, datetime.datetime))
 
     def test_task_completion(self):
-        completed_at = datetime.datetime.now(datetime.timezone.utc)  
+        completed_at = datetime.datetime.now(datetime.timezone.utc)
         task = TaskFactory(completed=True, completed_date=completed_at)
         self.assertEqual(task.completed_date, completed_at)
 

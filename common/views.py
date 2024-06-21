@@ -85,7 +85,6 @@ class AsyncModelViewSet(viewsets.ModelViewSet):
         logger.debug(f"\n\nPrepared data: {prepared_data}\n\n")
         return prepared_data
 
-
     # This could be attendees, tasks, etc, so we pass the model as a param
     def list_by_meeting(self, request, model):
         meeting_id = request.query_params.get("meeting_id")

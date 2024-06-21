@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class MeetingService:
-
     @staticmethod
     def get_meetings_by_user(user_id):
         meetings = (
@@ -84,15 +83,18 @@ class MeetingService:
                 return new_meeting
             except IntegrityError as e:
                 logger.error(
-                    f"Failed to create the next meeting due to a data integrity issue: {str(e)}"
+                    f"Failed to create the next meeting due "
+                    f"to a data integrity issue: {str(e)}"
                 )
             except Exception as e:
                 logger.error(
-                    f"Unexpected error occurred while creating the next meeting: {str(e)}"
+                    f"Unexpected error occurred while creating "
+                    f"the next meeting: {str(e)}"
                 )
         else:
             logger.warning(
-                f"No valid occurrence time found or out of recurrence range for {meeting.title}"
+                f"No valid occurrence time found or out "
+                f"of recurrence range for {meeting.title}"
             )
 
         return None
@@ -127,7 +129,6 @@ class MeetingService:
 
 
 class TaskService:
-
     @staticmethod
     def mark_complete(task_id):
 
