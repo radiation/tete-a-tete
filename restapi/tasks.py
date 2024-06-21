@@ -3,12 +3,20 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 
+from restapi.models import Meeting
 from users.services import UserService
 from users.serializers import (
     UserSerializer,
     UserPreferencesSerializer,
 )
-from restapi.serializers import *
+from restapi.serializers import (
+    EventTimeSerializer,
+    MeetingSerializer,
+    MeetingRecurrenceSerializer,
+    TaskSerializer,
+    MeetingTaskSerializer,
+    MeetingAttendeeSerializer,
+)
 
 import logging
 

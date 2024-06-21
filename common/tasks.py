@@ -3,8 +3,15 @@ from django.apps import apps
 
 from common.consumers import notify_channel_layer
 
-from users.serializers import *
-from restapi.serializers import *
+from users.serializers import UserSerializer, UserPreferencesSerializer
+from restapi.serializers import (
+    EventTimeSerializer,
+    MeetingSerializer,
+    MeetingRecurrenceSerializer,
+    TaskSerializer,
+    MeetingTaskSerializer,
+    MeetingAttendeeSerializer,
+)
 
 import logging
 from celery.signals import task_postrun

@@ -1,7 +1,12 @@
 from django.test import TestCase
 from django.utils.dateparse import parse_datetime
-from restapi.models import *
-from restapi.serializers import *
+from restapi.serializers import (
+    MeetingSerializer,
+    MeetingRecurrenceSerializer,
+    MeetingAttendeeSerializer,
+    TaskSerializer,
+    MeetingTaskSerializer,
+)
 from restapi.factories import (
     MeetingFactory,
     MeetingRecurrenceFactory,
@@ -10,6 +15,7 @@ from restapi.factories import (
     TaskFactory,
 )
 from users.factories import CustomUserFactory
+from users.serializers import UserSerializer
 
 import logging
 
@@ -130,6 +136,7 @@ class MeetingRecurrenceSerializerTest(TestCase):
         serializer = MeetingRecurrenceSerializer(data=data)
         self.assertTrue(serializer.is_valid())
         new_meeting_recurrence = serializer.save()
+        self.assertEqual(new_meeting_recurrence.frequency, data["frequency"])
 
     def test_invalid_deserialization(self):
         invalid_data = {

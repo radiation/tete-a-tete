@@ -3,11 +3,19 @@ from django.http import Http404, HttpResponseRedirect, JsonResponse
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from agendable import settings
 from common.views import AsyncModelViewSet
 from restapi.serializers import MeetingSerializer, TaskSerializer
-from .models import *
-from .serializers import *
-from .services import *
+from users.models import (
+    CustomUser,
+    UserPreferences,
+    EventTime,
+)
+from users.serializers import (
+    UserSerializer,
+    UserPreferencesSerializer,
+    EventTimeSerializer,
+)
 from restapi.services import MeetingService, TaskService
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated

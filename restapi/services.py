@@ -125,13 +125,6 @@ class MeetingService:
         else:
             return None
 
-    @staticmethod
-    def generate_reminder(meeting_id, user_id):
-
-        open_tasks = MeetingTask.objects.filter(meeting__id=meeting_id, completed=False)
-        meeting = Meeting.objects.get(pk=meeting_id)
-        notes = meeting.notes
-
 
 class TaskService:
 
