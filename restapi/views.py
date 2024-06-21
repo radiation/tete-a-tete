@@ -85,9 +85,10 @@ class MeetingViewSet(AsyncModelViewSet):
         )
 
     # Move tasks and agenda items to the next occurrence
-    @action(detail=False, methods=["POST"])
-    def complete(self, request):
-        MeetingService.complete_meeting(request.data.get("meeting_id"))
+    @action(detail=True, methods=["POST"])
+    def complete(self, request, pk=None):
+        meeting = self.get_object()
+        MeetingService.complete_meeting(meeting.id)
         return Response(status=status.HTTP_200_OK)
 
     # Add a MeetingRecurrence to a Meeting
@@ -108,7 +109,7 @@ class MeetingViewSet(AsyncModelViewSet):
             logger.debug(
                 f"MeetingViewSet.add_recurrence, Serialized data: {serializer.data}"
             )
-            # Dispatch the update task to Celery, assuming dispatch_task handles serialized data correctly
+            # Dispatch the update task to Celery
             self.dispatch_task(serializer.data, create=False)
 
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
