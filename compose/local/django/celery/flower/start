@@ -3,6 +3,8 @@
 set -o errexit
 set -o nounset
 
+cd /app/backend
+
 worker_ready() {
     celery -A agendable inspect ping
 }

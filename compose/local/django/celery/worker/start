@@ -3,4 +3,6 @@
 set -o errexit
 set -o nounset
 
+cd /app/backend
+
 python manage.py celery_worker

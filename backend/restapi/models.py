@@ -26,7 +26,8 @@ class Meeting(models.Model):
     def clean(self):
         if self.end_date and self.start_date and self.end_date < self.start_date:
             logger.warn(
-                f"{str(self)}: End date {str(self.end_date)} must be after start date {str(self.start_date)}"
+                f"{str(self)}: End date {str(self.end_date)} "
+                f"must be after start date {str(self.start_date)}"
             )
             raise ValidationError("End date must be after start date")
 
@@ -55,7 +56,10 @@ class MeetingRecurrence(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self) -> str:
-        return f"{self.frequency.capitalize()} recurrence starting {self.created_at.strftime('%Y-%m-%d')}"
+        return (
+            f"{self.frequency.capitalize()} recurrence "
+            f"starting {self.created_at.strftime('%Y-%m-%d')}"
+        )
 
 
 class MeetingAttendee(models.Model):
@@ -95,7 +99,8 @@ class Task(models.Model):
         else:
             logger.debug(f"Updating task {str(self)}")
 
-        # Check if the task is marked as not completed and clear the completed_date if so
+        # Check if the task is marked as not completed
+        # and clear the completed_date if so
         if not self.completed:
             self.completed_date = None
 

@@ -56,7 +56,10 @@ def send_meeting_reminders():
             user_service = UserService(user)
             user_service.send_email(
                 subject="Meeting Reminder",
-                message=f"Reminder: You have a meeting titled '{meeting.title}' scheduled at {meeting.start_date}.",
+                message=(
+                    f"Reminder: You have a meeting titled "
+                    f"'{meeting.title}' scheduled at {meeting.start_date}."
+                ),
                 from_email="noreply@example.com",
             )
 
