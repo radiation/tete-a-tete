@@ -5,7 +5,7 @@ import Profile from './components/Profile';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Navbar from './components/Navbar/Navbar';
-import Home from './pages/Home';  // Assuming you have a Home component
+import Home from './pages/Home';
 
 const App: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
