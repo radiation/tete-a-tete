@@ -21,6 +21,7 @@ from users.views import (
     email_confirm_redirect,
     password_reset_confirm_redirect,
     user_dashboard,
+    sync_calendar,
 )
 
 router = DefaultRouter()
@@ -36,6 +37,7 @@ urlpatterns = [
     path("user/", UserDetailsView.as_view(), name="rest_user_details"),
     path("signup/", signup, name="socialaccount_signup"),
     path("google/", GoogleLogin.as_view(), name="google_login"),
+    path("sync-calendar/", sync_calendar, name="sync_calendar"),
     path("register/verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
     path(
         "register/resend-email/",

@@ -24,3 +24,7 @@ django-sslserver==0.22
 django-extensions==3.2.3
 djangorestframework-simplejwt==5.3.1
 ruff==0.4.9
+google-api-python-client==2.134.0
+google-auth==2.30.0
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.2.0

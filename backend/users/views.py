@@ -1,5 +1,5 @@
 import re
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -16,6 +16,7 @@ from users.serializers import (
     UserPreferencesSerializer,
     EventTimeSerializer,
 )
+from users.calendar_services import sync_meetings_to_calendar
 from restapi.services import MeetingService, TaskService
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -48,6 +49,11 @@ def password_reset_confirm_redirect(request, uidb64, token):
     return HttpResponseRedirect(
         f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/"
     )
+
+
+def sync_calendar(request):
+    sync_meetings_to_calendar()
+    return HttpResponse("Meetings synced to Google Calendar")
 
 
 @api_view(["GET"])
