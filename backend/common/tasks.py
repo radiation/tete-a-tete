@@ -68,7 +68,8 @@ def create_or_update_batch(tasks_data, model_name):
             serializer.save()
         else:
             logger.error(
-                f"Serializer errors for {model_name} ID {data['id']}: {serializer.errors}"
+                f"Serializer errors for {model_name} ID {data['id']}: "
+                f"{serializer.errors}"
             )
 
     return "Batch update completed"

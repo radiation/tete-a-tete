@@ -133,7 +133,10 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -169,9 +172,9 @@ LOGGING = {
     # Handler settings
     "handlers": {
         "console": {
-            "level": os.environ.get("LOG_LEVEL", "INFO"),  # Log level for the console
-            "class": "logging.StreamHandler",  # Use the StreamHandler for logging to the console
-            "formatter": "standard",  # Use the standard formatter
+            "level": os.environ.get("LOG_LEVEL", "INFO"),
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
         },
         # You can add file handler here if needed
     },
