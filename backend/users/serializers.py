@@ -1,12 +1,8 @@
-from rest_framework import serializers
-from .models import (
-    CustomUser,
-    UserPreferences,
-    EventTime,
-    UserDigest,
-)
-
 import logging
+
+from rest_framework import serializers
+
+from .models import CustomUser, EventTime, UserDigest, UserPreferences
 
 logger = logging.getLogger(__name__)
 

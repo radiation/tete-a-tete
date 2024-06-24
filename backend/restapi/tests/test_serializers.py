@@ -1,23 +1,23 @@
+import logging
+
 from django.test import TestCase
 from django.utils.dateparse import parse_datetime
-from restapi.serializers import (
-    MeetingSerializer,
-    MeetingRecurrenceSerializer,
-    MeetingAttendeeSerializer,
-    TaskSerializer,
-    MeetingTaskSerializer,
-)
 from restapi.factories import (
+    MeetingAttendeeFactory,
     MeetingFactory,
     MeetingRecurrenceFactory,
-    MeetingAttendeeFactory,
     MeetingTaskFactory,
     TaskFactory,
 )
+from restapi.serializers import (
+    MeetingAttendeeSerializer,
+    MeetingRecurrenceSerializer,
+    MeetingSerializer,
+    MeetingTaskSerializer,
+    TaskSerializer,
+)
 from users.factories import CustomUserFactory
 from users.serializers import UserSerializer
-
-import logging
 
 logger = logging.getLogger(__name__)
 

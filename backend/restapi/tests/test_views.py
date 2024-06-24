@@ -1,17 +1,17 @@
+import logging
+from unittest.mock import patch
+
 from django.urls import reverse
+from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.factories import CustomUserFactory
 from restapi.factories import (
     MeetingFactory,
     MeetingRecurrenceFactory,
     MeetingTaskFactory,
     TaskFactory,
 )
-
-from unittest.mock import patch
-from rest_framework import status
-import logging
+from users.factories import CustomUserFactory
 
 logger = logging.getLogger(__name__)
 

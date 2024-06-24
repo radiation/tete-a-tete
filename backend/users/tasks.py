@@ -1,4 +1,5 @@
 from celery import shared_task
+
 from .calendar_services import sync_meetings_to_calendar
 
 

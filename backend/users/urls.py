@@ -1,27 +1,27 @@
-from dj_rest_auth.registration.views import RegisterView
-from django.urls import path
-from rest_framework.routers import DefaultRouter
+from allauth.socialaccount.views import signup
 from dj_rest_auth.registration.views import (
+    RegisterView,
     ResendEmailVerificationView,
     VerifyEmailView,
 )
 from dj_rest_auth.views import (
     LoginView,
     LogoutView,
-    UserDetailsView,
     PasswordResetConfirmView,
     PasswordResetView,
+    UserDetailsView,
 )
-from allauth.socialaccount.views import signup
+from django.urls import path
+from rest_framework.routers import DefaultRouter
 from users.views import (
-    UserViewSet,
-    UserPreferencesViewSet,
     EventTimeViewSet,
     GoogleLogin,
+    UserPreferencesViewSet,
+    UserViewSet,
     email_confirm_redirect,
     password_reset_confirm_redirect,
-    user_dashboard,
     sync_calendar,
+    user_dashboard,
 )
 
 router = DefaultRouter()

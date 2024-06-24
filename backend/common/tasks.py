@@ -1,20 +1,18 @@
+import logging
+
 from celery import Celery, shared_task
-from django.apps import apps
-
+from celery.signals import task_postrun
 from common.consumers import notify_channel_layer
-
-from users.serializers import UserSerializer, UserPreferencesSerializer
+from django.apps import apps
 from restapi.serializers import (
     EventTimeSerializer,
-    MeetingSerializer,
-    MeetingRecurrenceSerializer,
-    TaskSerializer,
-    MeetingTaskSerializer,
     MeetingAttendeeSerializer,
+    MeetingRecurrenceSerializer,
+    MeetingSerializer,
+    MeetingTaskSerializer,
+    TaskSerializer,
 )
-
-import logging
-from celery.signals import task_postrun
+from users.serializers import UserPreferencesSerializer, UserSerializer
 
 logger = logging.getLogger(__name__)
 

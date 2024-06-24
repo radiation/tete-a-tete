@@ -1,9 +1,9 @@
 import json
 
 from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
-from channels.generic.websocket import WebsocketConsumer
 from celery.result import AsyncResult
+from channels.generic.websocket import WebsocketConsumer
+from channels.layers import get_channel_layer
 
 
 def get_task_info(task_id):

@@ -1,15 +1,14 @@
-from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.conf import settings
-from django.db import IntegrityError
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+import logging
 
 from common.constants import WEEKDAY_CHOICES
 from common.models import EventTime
-from .managers import CustomUserManager
+from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.db import IntegrityError, models
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
-import logging
+from .managers import CustomUserManager
 
 logger = logging.getLogger(__name__)
 

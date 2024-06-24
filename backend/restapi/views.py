@@ -1,3 +1,6 @@
+import logging
+
+from common.views import AsyncModelViewSet
 from django.db import connections
 from django.db.utils import OperationalError
 from django.http import HttpResponse
@@ -5,25 +8,22 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from common.views import AsyncModelViewSet
 from restapi.models import (
     Meeting,
-    MeetingRecurrence,
     MeetingAttendee,
-    Task,
+    MeetingRecurrence,
     MeetingTask,
+    Task,
 )
 from restapi.serializers import (
-    MeetingSerializer,
-    MeetingRecurrenceSerializer,
-    TaskSerializer,
-    MeetingTaskSerializer,
     MeetingAttendeeSerializer,
+    MeetingRecurrenceSerializer,
+    MeetingSerializer,
+    MeetingTaskSerializer,
+    TaskSerializer,
 )
 from restapi.services import MeetingService, TaskService
 from users.models import CustomUser
-
-import logging
 
 logger = logging.getLogger(__name__)
 

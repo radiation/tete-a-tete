@@ -1,7 +1,5 @@
-from factory.django import DjangoModelFactory
-
 import factory
-
+from factory.django import DjangoModelFactory
 from restapi.models import MeetingTask
 
 

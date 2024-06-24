@@ -1,27 +1,24 @@
+import logging
 import re
-from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
-from dj_rest_auth.registration.views import SocialLoginView
+
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from agendable import settings
 from common.views import AsyncModelViewSet
-from restapi.serializers import MeetingSerializer, TaskSerializer
-from users.models import (
-    CustomUser,
-    UserPreferences,
-    EventTime,
-)
-from users.serializers import (
-    UserSerializer,
-    UserPreferencesSerializer,
-    EventTimeSerializer,
-)
-from users.calendar_services import sync_meetings_to_calendar
-from restapi.services import MeetingService, TaskService
+from dj_rest_auth.registration.views import SocialLoginView
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from restapi.serializers import MeetingSerializer, TaskSerializer
+from restapi.services import MeetingService, TaskService
+from users.calendar_services import sync_meetings_to_calendar
+from users.models import CustomUser, EventTime, UserPreferences
+from users.serializers import (
+    EventTimeSerializer,
+    UserPreferencesSerializer,
+    UserSerializer,
+)
 
-import logging
+from agendable import settings
 
 logger = logging.getLogger(__name__)
 

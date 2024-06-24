@@ -1,5 +1,7 @@
-from datetime import datetime
 import json
+from datetime import datetime
+from unittest.mock import MagicMock, patch
+
 from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -8,12 +10,10 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-from unittest.mock import MagicMock, patch
+from restapi.factories import MeetingAttendeeFactory, MeetingFactory, TaskFactory
 from users.calendar_services import get_calendar_service, sync_meetings_to_calendar
 from users.factories import CustomUserFactory
 from users.serializers import UserSerializer
-from restapi.factories import MeetingAttendeeFactory, MeetingFactory, TaskFactory
-
 
 User = get_user_model()
 

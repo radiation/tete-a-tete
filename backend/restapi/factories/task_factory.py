@@ -1,8 +1,7 @@
-from factory.django import DjangoModelFactory
-from django.utils import timezone
-from restapi.models import Task
-
 import factory
+from django.utils import timezone
+from factory.django import DjangoModelFactory
+from restapi.models import Task
 
 
 class TaskFactory(DjangoModelFactory):

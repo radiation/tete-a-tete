@@ -1,19 +1,20 @@
 import datetime
+import json
+import logging
+
+from common.tasks import create_or_update_record
 from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.response import Response
-from users.models import CustomUser
-from restapi.models import Meeting, Task, MeetingAttendee, MeetingTask
+from restapi.models import Meeting, MeetingAttendee, MeetingTask, Task
 from restapi.serializers import (
-    TaskSerializer,
     MeetingAttendeeSerializer,
     MeetingTaskSerializer,
+    TaskSerializer,
 )
-from common.tasks import create_or_update_record
-import json
-import logging
+from users.models import CustomUser
 
 logger = logging.getLogger(__name__)
 

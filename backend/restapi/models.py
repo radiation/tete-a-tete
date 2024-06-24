@@ -1,11 +1,10 @@
+import logging
+
+from common.constants import FREQUENCY_CHOICES, MONTH_WEEK_CHOICES, WEEKDAY_CHOICES
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-
-from common.constants import WEEKDAY_CHOICES, MONTH_WEEK_CHOICES, FREQUENCY_CHOICES
-
-import logging
 
 logger = logging.getLogger(__name__)
 

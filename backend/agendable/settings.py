@@ -1,9 +1,10 @@
-from pathlib import Path
-from datetime import timedelta
-from kombu import Queue
-import os
 import logging
+import os
+from datetime import timedelta
+from pathlib import Path
+
 from corsheaders.defaults import default_headers
+from kombu import Queue
 
 logger = logging.getLogger(__name__)
 

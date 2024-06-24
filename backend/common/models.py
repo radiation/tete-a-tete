@@ -1,5 +1,5 @@
-from django.db import models
 from common.constants import WEEKDAY_CHOICES
+from django.db import models
 
 
 class EventTime(models.Model):
