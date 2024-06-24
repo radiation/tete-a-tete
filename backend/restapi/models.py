@@ -18,6 +18,7 @@ class Meeting(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     duration = models.IntegerField(default=30)
+    location = models.CharField(default="", max_length=100)
     notes = models.TextField(default="")
     num_reschedules = models.IntegerField(default=0)
     reminder_sent = models.BooleanField(default=False)
