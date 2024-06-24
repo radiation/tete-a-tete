@@ -1,7 +1,7 @@
 from allauth.socialaccount.models import SocialToken
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-from restapi.models import MeetingAttendee
+from meetings.models import MeetingAttendee
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 

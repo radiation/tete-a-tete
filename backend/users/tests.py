@@ -8,9 +8,9 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
+from meetings.factories import MeetingAttendeeFactory, MeetingFactory, TaskFactory
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-from restapi.factories import MeetingAttendeeFactory, MeetingFactory, TaskFactory
 from users.calendar_services import get_calendar_service, sync_meetings_to_calendar
 from users.factories import CustomUserFactory
 from users.serializers import UserSerializer

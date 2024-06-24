@@ -6,14 +6,14 @@ from common.tasks import create_or_update_record
 from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework.response import Response
-from restapi.models import Meeting, MeetingAttendee, MeetingTask, Task
-from restapi.serializers import (
+from meetings.models import Meeting, MeetingAttendee, MeetingTask, Task
+from meetings.serializers import (
     MeetingAttendeeSerializer,
     MeetingTaskSerializer,
     TaskSerializer,
 )
+from rest_framework import viewsets
+from rest_framework.response import Response
 from users.models import CustomUser
 
 logger = logging.getLogger(__name__)

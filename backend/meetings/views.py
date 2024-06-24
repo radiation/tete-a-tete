@@ -5,24 +5,24 @@ from django.db import connections
 from django.db.utils import OperationalError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from restapi.models import (
+from meetings.models import (
     Meeting,
     MeetingAttendee,
     MeetingRecurrence,
     MeetingTask,
     Task,
 )
-from restapi.serializers import (
+from meetings.serializers import (
     MeetingAttendeeSerializer,
     MeetingRecurrenceSerializer,
     MeetingSerializer,
     MeetingTaskSerializer,
     TaskSerializer,
 )
-from restapi.services import MeetingService, TaskService
+from meetings.services import MeetingService, TaskService
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from users.models import CustomUser
 
 logger = logging.getLogger(__name__)

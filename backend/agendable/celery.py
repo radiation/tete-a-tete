@@ -17,7 +17,7 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 
 app.conf.beat_schedule = {
     "send-meeting-reminders": {
-        "task": "restapi.tasks.send_meeting_reminders",
+        "task": "meetings.tasks.send_meeting_reminders",
         "schedule": crontab(minute="*/5"),
     },
 }

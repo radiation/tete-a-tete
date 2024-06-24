@@ -2,14 +2,14 @@ import logging
 
 from django.test import TestCase
 from django.utils.dateparse import parse_datetime
-from restapi.factories import (
+from meetings.factories import (
     MeetingAttendeeFactory,
     MeetingFactory,
     MeetingRecurrenceFactory,
     MeetingTaskFactory,
     TaskFactory,
 )
-from restapi.serializers import (
+from meetings.serializers import (
     MeetingAttendeeSerializer,
     MeetingRecurrenceSerializer,
     MeetingSerializer,

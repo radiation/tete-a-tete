@@ -2,7 +2,7 @@ import os
 
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.urls import path
-from restapi import consumers
+from meetings import consumers
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "agendable.settings")
 
