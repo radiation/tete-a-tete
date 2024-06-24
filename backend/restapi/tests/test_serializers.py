@@ -40,6 +40,7 @@ class MeetingSerializerTest(TestCase):
                     "duration",
                     "start_date",
                     "end_date",
+                    "location",
                     "notes",
                     "num_reschedules",
                     "reminder_sent",
