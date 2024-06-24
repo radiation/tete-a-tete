@@ -4,15 +4,15 @@ import logging
 from common.constants import FREQUENCY_CHOICES, MONTH_WEEK_CHOICES, WEEKDAY_CHOICES
 from django.db import IntegrityError
 from django.test import TestCase
-from restapi.factories import (
+from meetings.factories import (
     MeetingAttendeeFactory,
     MeetingFactory,
     MeetingRecurrenceFactory,
     MeetingTaskFactory,
     TaskFactory,
 )
-from restapi.models import Meeting, MeetingTask, Task
-from restapi.services import MeetingService
+from meetings.models import Meeting, MeetingTask, Task
+from meetings.services import MeetingService
 from users.models import CustomUser
 
 logger = logging.getLogger(__name__)

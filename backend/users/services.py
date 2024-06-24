@@ -1,4 +1,4 @@
-from restapi.models import MeetingAttendee
+from meetings.models import MeetingAttendee
 
 
 class UserService:
@@ -11,7 +11,7 @@ class UserService:
         self.user.save()
 
     def send_email(self, subject, message, from_email):
-        from restapi.tasks import send_email_to_user
+        from meetings.tasks import send_email_to_user
 
         if self.user.email:
             send_email_to_user.delay(subject, message, from_email, self.user.email)

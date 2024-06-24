@@ -3,7 +3,7 @@ from django.apps import AppConfig
 
 class RestapiConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "restapi"
+    name = "meetings"
 
 
 """
@@ -22,6 +22,6 @@ class RestapiConfig(AppConfig):
         PeriodicTask.objects.get_or_create(
             interval=schedule,
             name='Send email every 5 seconds',
-            task='restapi.tasks.send_meeting_reminders',
+            task='meetings.tasks.send_meeting_reminders',
         )
 """

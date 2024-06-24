@@ -2,7 +2,7 @@ import random
 
 import factory
 from factory.fuzzy import FuzzyInteger
-from restapi.models import (
+from meetings.models import (
     FREQUENCY_CHOICES,
     MONTH_WEEK_CHOICES,
     WEEKDAY_CHOICES,

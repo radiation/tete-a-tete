@@ -4,8 +4,8 @@ from common.tasks import create_or_update_batch
 from django.db import IntegrityError
 from django.db.models import Q
 from django.utils.timezone import now
-from restapi.models import Meeting, MeetingTask, Task
-from restapi.utils import get_next_occurrence_date
+from meetings.models import Meeting, MeetingTask, Task
+from meetings.utils import get_next_occurrence_date
 
 logger = logging.getLogger(__name__)
 

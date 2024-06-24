@@ -1,14 +1,14 @@
 import logging
 
 from common.models import EventTime
-from rest_framework import serializers
-from restapi.models import (
+from meetings.models import (
     Meeting,
     MeetingAttendee,
     MeetingRecurrence,
     MeetingTask,
     Task,
 )
+from rest_framework import serializers
 from users.models import CustomUser
 from users.serializers import UserSerializer
 

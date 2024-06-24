@@ -4,7 +4,7 @@ from celery import Celery, shared_task
 from celery.signals import task_postrun
 from common.consumers import notify_channel_layer
 from django.apps import apps
-from restapi.serializers import (
+from meetings.serializers import (
     EventTimeSerializer,
     MeetingAttendeeSerializer,
     MeetingRecurrenceSerializer,
@@ -36,7 +36,7 @@ def create_or_update_record(validated_data, model_name, create=True):
         f"Creating/Updating record for model {model_name} with data: {validated_data}"
     )
 
-    Model = apps.get_model("restapi", model_name)
+    Model = apps.get_model("meetings", model_name)
     SerializerClass = serializers_dict[model_name]
 
     if create:
@@ -55,7 +55,7 @@ def create_or_update_record(validated_data, model_name, create=True):
 
 @shared_task(name="high_priority:create_or_update_batch")
 def create_or_update_batch(tasks_data, model_name):
-    Model = apps.get_model("restapi", model_name)
+    Model = apps.get_model("meetings", model_name)
     SerializerClass = serializers_dict[model_name]
 
     for data in tasks_data:

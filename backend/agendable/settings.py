@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "common",
     "users",
-    "restapi",
+    "meetings",
     "django_celery_beat",
     "channels",
     "sslserver",
@@ -191,7 +191,7 @@ LOGGING = {
             "level": os.environ.get("LOG_LEVEL", "INFO"),
             "propagate": False,
         },
-        "restapi": {
+        "meetings": {
             "handlers": ["console"],
             "level": os.environ.get("LOG_LEVEL", "INFO"),
             "propagate": False,

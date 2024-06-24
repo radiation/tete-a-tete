@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("restapi", "0003_alter_meetingattendee_unique_together"),
+        ("meetings", "0003_alter_meetingattendee_unique_together"),
     ]
 
     operations = [

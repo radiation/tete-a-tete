@@ -1,6 +1,5 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
-from restapi.views import (
+from meetings.views import (
     MeetingAttendeeViewSet,
     MeetingRecurrenceViewSet,
     MeetingTaskViewSet,
@@ -8,6 +7,7 @@ from restapi.views import (
     TaskViewSet,
     health,
 )
+from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r"meetings", MeetingViewSet, basename="meeting")

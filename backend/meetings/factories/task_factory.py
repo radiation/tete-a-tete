@@ -1,7 +1,7 @@
 import factory
 from django.utils import timezone
 from factory.django import DjangoModelFactory
-from restapi.models import Task
+from meetings.models import Task
 
 
 class TaskFactory(DjangoModelFactory):
