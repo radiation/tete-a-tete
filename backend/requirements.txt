@@ -1,12 +1,9 @@
 django==4.2.8
 django-cors-headers==4.3.1
 django-mailer==2.3
-djangorestframework==3.14.0
-drf-writable-nested==0.7.0
 psycopg2-binary==2.9.9
 gunicorn==21.2.0
 celery==5.3.6
-dj-rest-auth==5.0.2
 django-allauth==0.59.0
 flower==2.0.1
 redis==5.0.1
@@ -17,12 +14,10 @@ factory-boy==3.3.0
 coverage==7.3.4
 channels==4.0.0
 channels-redis==4.1.0
-drf-yasg==1.21.7
 pre-commit==3.6.0
 social-auth-app-django==5.4.1
 django-sslserver==0.22
 django-extensions==3.2.3
-djangorestframework-simplejwt==5.3.1
 ruff==0.4.9
 google-api-python-client==2.134.0
 google-auth==2.30.0
