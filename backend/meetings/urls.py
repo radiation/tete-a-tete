@@ -1,27 +1,13 @@
 from django.urls import path
-from meetings.views import (
-    MeetingAttendeeViewSet,
-    MeetingRecurrenceViewSet,
-    MeetingTaskViewSet,
-    MeetingViewSet,
-    TaskViewSet,
-    health,
-)
-from rest_framework.routers import DefaultRouter
+from ninja import NinjaAPI
 
-router = DefaultRouter()
-router.register(r"meetings", MeetingViewSet, basename="meeting")
-router.register(
-    r"meeting_recurrences", MeetingRecurrenceViewSet, basename="meeting-recurrence"
-)
-router.register(r"tasks", TaskViewSet, basename="task")
-router.register(r"meeting_tasks", MeetingTaskViewSet, basename="meeting-task")
-router.register(
-    r"meeting_attendees", MeetingAttendeeViewSet, basename="meeting-attendee"
-)
+from .routers.meeting_router import router as meeting_router
+from .routers.recurrence_router import router as recurrence_router
+
+api = NinjaAPI()
+api.add_router("/meetings", meeting_router)
+api.add_router("/recurrences", recurrence_router)
 
 urlpatterns = [
-    path("health/", health, name="health"),
+    path("api/", api.urls),  # API endpoints for the meetings app
 ]
-
-urlpatterns += router.urls

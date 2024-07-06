@@ -29,3 +29,5 @@ google-auth==2.30.0
 google-auth-oauthlib==1.2.0
 google-auth-httplib2==0.2.0
 isort==5.13.2
+black==24.4.2
+django-ninja==1.2.1
