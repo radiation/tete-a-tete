@@ -1,5 +1,5 @@
+from meetings.routers.meeting_recurrence_router import router as recurrence_router
 from meetings.routers.meeting_router import router as meeting_router
-from meetings.routers.recurrence_router import router as recurrence_router
 from meetings.routers.task_router import router as task_router
 from ninja import NinjaAPI
 

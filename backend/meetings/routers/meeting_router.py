@@ -25,7 +25,7 @@ async def get_meeting(request, meeting_id: int):
 @router.post("/meetings/{meeting_id}/complete", response={204: None})
 async def complete_meeting(request, meeting_id: int):
     meeting = get_object_or_404(Meeting, id=meeting_id)
-    MeetingService.complete_meeting(meeting.id)  # Adjust your service logic accordingly
+    MeetingService.complete_meeting(meeting.id)
     return 204
 
 
